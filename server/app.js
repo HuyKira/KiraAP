@@ -98,6 +98,9 @@ app.get('/profile', (req, res) => {
 app.get('/api-keys', (req, res) => {
     res.render('user/api-keys', { layout: 'layouts/user', activePage: 'apiKeys', pageTitle: 'API Keys', extraCSS: '<link rel="stylesheet" href="/css/api-keys.css">' });
 });
+app.get('/docs', (req, res) => {
+    res.render('user/docs', { layout: 'layouts/user', activePage: 'docs', pageTitle: 'Tài liệu API', extraCSS: '<link rel="stylesheet" href="/css/docs.css">' });
+});
 
 // === Error Handler ===
 app.use((err, req, res, next) => {

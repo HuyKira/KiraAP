@@ -13,13 +13,69 @@ router.use(proxyAuth);
 // ==========================================
 router.get('/models', async (req, res) => {
     try {
-        const models = await ModelConfig.find({ isActive: true }).lean();
+        const query = { isActive: true };
+        if (req.query.category) {
+            query.category = req.query.category;
+        }
+        const models = await ModelConfig.find(query)
+            .sort({ isDefault: -1, displayName: 1 })
+            .lean();
         const data = models.map(m => ({
             id: m.modelId,
             object: 'model',
             created: Math.floor(new Date(m.createdAt).getTime() / 1000),
-            owned_by: 'kira-agent-platform'
+            owned_by: 'kira-agent-platform',
+            category: m.category,
+            display_name: m.displayName,
+            is_default: m.isDefault || false
         }));
+        res.json({ object: 'list', data });
+    } catch (error) {
+        res.status(500).json({ error: { message: error.message, type: 'server_error' } });
+    }
+});
+
+// ==========================================
+// GET /v1/user/profile — Thông tin user
+// ==========================================
+router.get('/user/profile', async (req, res) => {
+    try {
+        res.json({
+            object: 'user',
+            data: {
+                id: req.user._id,
+                username: req.user.username,
+                email: req.user.email,
+                display_name: req.user.displayName,
+                role: req.user.role,
+                created_at: req.user.createdAt
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ error: { message: error.message, type: 'server_error' } });
+    }
+});
+
+// ==========================================
+// GET /v1/user/api-keys — Danh sách API key
+// ==========================================
+router.get('/user/api-keys', async (req, res) => {
+    try {
+        const UserApiKey = require('../../models/UserApiKey');
+        const keys = await UserApiKey.find({ userId: req.user._id })
+            .sort({ createdAt: -1 })
+            .lean();
+
+        const data = keys.map(k => ({
+            id: k._id,
+            name: k.name,
+            key: 'kira_sk_••••••••' + k.key.slice(-4),
+            is_active: k.isActive,
+            usage_count: k.usageCount || 0,
+            last_used_at: k.lastUsedAt || null,
+            created_at: k.createdAt
+        }));
+
         res.json({ object: 'list', data });
     } catch (error) {
         res.status(500).json({ error: { message: error.message, type: 'server_error' } });
