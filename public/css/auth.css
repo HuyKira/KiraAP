@@ -1,0 +1,18 @@
+/* Auth Modal Popup */
+.auth-modal-box{max-width:420px;}
+.auth-modal-logo{display:flex;align-items:center;gap:8px;color:var(--accent);font-size:1.1rem;}
+.auth-modal-logo i{font-size:1.2rem;}
+.auth-modal-form h3{font-size:1.2rem;color:var(--brown);margin-bottom:20px;text-align:center;}
+.password-wrap{position:relative;}
+.password-wrap input{padding-right:44px;}
+.pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--brown3);cursor:pointer;font-size:.9rem;}
+.auth-btn{width:100%;padding:13px;background:var(--accent-gradient);border:none;border-radius:8px;color:#fff;font-size:1rem;font-weight:600;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;transition:var(--transition);margin-top:8px;}
+.auth-btn:hover{box-shadow:0 4px 20px rgba(232,116,12,0.4);transform:scale(1.02);}
+.auth-btn:active{transform:scale(.98);}
+.auth-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.auth-switch{text-align:center;margin-top:16px;font-size:.85rem;color:var(--brown2);}
+.auth-switch a{color:var(--accent);font-weight:600;}
+
+/* Sidebar login button (for guests) */
+.login-sidebar-btn{width:100%;padding:11px 16px;background:var(--accent-gradient);border:none;border-radius:8px;color:#fff;font-size:.88rem;font-weight:600;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;display:flex;align-items:center;gap:8px;justify-content:center;transition:var(--transition);}
+.login-sidebar-btn:hover{box-shadow:0 4px 15px rgba(232,116,12,0.35);transform:scale(1.02);}

@@ -1,0 +1,84 @@
+/* API Key Cards */
+.api-key-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: var(--transition);
+}
+
+.api-key-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 2px 12px rgba(232, 116, 12, 0.06);
+}
+
+.api-key-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.api-key-name {
+    font-size: .92rem;
+    font-weight: 600;
+    color: var(--brown);
+    margin-bottom: 4px;
+}
+
+.api-key-value code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .78rem;
+    color: var(--brown3);
+    background: var(--bg2);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.api-key-meta {
+    display: flex;
+    gap: 16px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.api-key-meta span {
+    font-size: .76rem;
+    color: var(--brown3);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.api-key-meta i {
+    font-size: .7rem;
+    opacity: 0.6;
+}
+
+.api-key-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.api-key-delete {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--brown3);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .85rem;
+    transition: var(--transition);
+}
+
+.api-key-delete:hover {
+    background: rgba(220, 38, 38, 0.08);
+    color: var(--error);
+}

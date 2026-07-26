@@ -1,0 +1,23 @@
+<!-- Profile Page Content -->
+<div class="gen-container" style="justify-content:center;align-items:flex-start;padding:40px 20px;">
+    <div style="max-width:520px;width:100%;">
+        <h3 style="font-size:1.1rem;color:var(--brown);margin-bottom:20px;">
+            <i class="fas fa-user-circle" style="color:var(--accent);margin-right:8px;"></i>Thông tin tài khoản
+        </h3>
+        <div class="form-group"><label>Tên hiển thị</label><input type="text" id="profileName" placeholder="Tên hiển thị"></div>
+        <div class="form-group"><label>Email</label><input type="email" id="profileEmail" disabled></div>
+        <div class="form-group"><label>Vai trò</label><input type="text" id="profileRole" disabled></div>
+        <hr style="border-color:var(--border);margin:24px 0;">
+        <h3 style="font-size:1.1rem;color:var(--brown);margin-bottom:20px;">
+            <i class="fas fa-lock" style="color:var(--accent);margin-right:8px;"></i>Đổi mật khẩu
+        </h3>
+        <div class="form-group"><label>Mật khẩu hiện tại</label><input type="password" id="currentPw" placeholder="Nhập mật khẩu hiện tại"></div>
+        <div class="form-group"><label>Mật khẩu mới</label><input type="password" id="newPw" placeholder="Nhập mật khẩu mới"></div>
+        <div style="display:flex;gap:12px;margin-top:20px;">
+            <button class="gen-submit-btn" id="saveProfileBtn" style="flex:1;"><i class="fas fa-save"></i> Lưu thay đổi</button>
+            <button class="gen-submit-btn" id="logoutBtn" style="flex:1;background:var(--error);"><i class="fas fa-right-from-bracket"></i> Đăng xuất</button>
+        </div>
+    </div>
+</div>
+
+<script src="/js/profile.js"></script>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kira Agent Platform - <%- typeof pageTitle !== 'undefined' ? pageTitle : 'AI' %></title>
+    <meta name="description" content="Kira Agent Platform - Nền tảng AI thông minh tích hợp Chat, Tạo ảnh, Tạo video và Giọng nói">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/variables.css">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/sidebar.css">
+    <link rel="stylesheet" href="/css/chat.css">
+    <link rel="stylesheet" href="/css/media-gen.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <%- typeof extraCSS !== 'undefined' ? extraCSS : '' %>
+    <script src="/js/utils.js"></script>
+    <script src="/js/auth.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <img src="/assets/logo.png" alt="Kira" class="logo-img">
+                    <span class="logo-text">Kira Agent Platform</span>
+                </div>
+            </div>
+
+            <% if (typeof activePage !== 'undefined' && activePage === 'chat') { %>
+            <a href="/" class="new-chat-btn" id="newChatBtn">
+                <i class="fas fa-plus"></i> Cuộc trò chuyện mới
+            </a>
+            <% } %>
+
+            <nav class="sidebar-menu">
+                <a href="/" class="menu-item <%= typeof activePage !== 'undefined' && activePage === 'chat' ? 'active' : '' %>">
+                    <i class="fas fa-comments"></i> <span>Trò chuyện</span>
+                </a>
+                <a href="/image" class="menu-item <%= typeof activePage !== 'undefined' && activePage === 'image' ? 'active' : '' %>">
+                    <i class="fas fa-image"></i> <span>Tạo hình ảnh</span>
+                </a>
+                <a href="/video" class="menu-item <%= typeof activePage !== 'undefined' && activePage === 'video' ? 'active' : '' %>">
+                    <i class="fas fa-video"></i> <span>Tạo video</span>
+                </a>
+                <a href="/tts" class="menu-item <%= typeof activePage !== 'undefined' && activePage === 'tts' ? 'active' : '' %>">
+                    <i class="fas fa-microphone"></i> <span>Tạo giọng nói</span>
+                </a>
+                <a href="/api-keys" class="menu-item <%= typeof activePage !== 'undefined' && activePage === 'apiKeys' ? 'active' : '' %>">
+                    <i class="fas fa-key"></i> <span>API Keys</span>
+                </a>
+                <a href="/admin" class="menu-item menu-admin" id="menuAdmin" style="display:none;">
+                    <i class="fas fa-shield-halved"></i> <span>Quản trị</span>
+                </a>
+            </nav>
+
+            <% if (typeof activePage !== 'undefined' && activePage === 'chat') { %>
+            <div class="sidebar-divider"></div>
+
+            <div class="sidebar-history">
+                <h4 class="history-title">Lịch sử</h4>
+                <div class="history-list" id="historyList">
+                    <!-- Dynamic content -->
+                </div>
+            </div>
+            <% } %>
+
+            <div class="sidebar-footer">
+                <!-- Guest -->
+                <button class="login-sidebar-btn" id="loginSidebarBtn" onclick="showAuthModal()">
+                    <i class="fas fa-right-to-bracket"></i> Đăng nhập
+                </button>
+                <!-- Logged in -->
+                <div class="user-footer" id="userFooter" style="display:none;">
+                    <div class="user-profile" id="userProfile">
+                        <div class="user-avatar-small" id="userAvatarSmall"><i class="fas fa-user"></i></div>
+                        <span class="user-display-name" id="userDisplayName">User</span>
+                        <a href="/profile" class="settings-btn" title="Cài đặt"><i class="fas fa-cog"></i></a>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Mobile Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="topbar" id="topbar">
+                <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+                <h2 class="topbar-title" id="topbarTitle"><%- typeof pageTitle !== 'undefined' ? pageTitle : '' %></h2>
+                <div class="topbar-right">
+                    <div class="model-select-box" id="modelSelectBox" title="Chọn Model AI">
+                        <i class="fas fa-microchip"></i>
+                        <select id="globalModelSelect">
+                            <option value="">Đang tải model...</option>
+                        </select>
+                    </div>
+                    <div class="user-avatar-top" id="userAvatarTop"><i class="fas fa-user"></i></div>
+                </div>
+            </header>
+
+            <!-- Page Content (injected by each page) -->
+            <%- body %>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Auth Modal (Popup Login/Register) -->
+    <div id="authModal" class="modal-overlay" style="display:none;">
+        <div class="modal-box auth-modal-box">
+            <div class="modal-header">
+                <div class="auth-modal-logo"><img src="/assets/logo.png" alt="Kira" style="width:28px;height:28px;border-radius:6px;"> <strong>Kira Agent Platform</strong></div>
+                <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Login Form -->
+                <form id="loginForm" class="auth-modal-form">
+                    <h3>Đăng nhập</h3>
+                    <div class="form-group"><label>Tên đăng nhập hoặc Email</label><input type="text" id="loginEmail" placeholder="username hoặc email@example.com" required></div>
+                    <div class="form-group"><label>Mật khẩu</label>
+                        <div class="password-wrap"><input type="password" id="loginPassword" placeholder="••••••" required><button type="button" class="pw-toggle" onclick="togglePassword('loginPassword', this)"><i class="fas fa-eye-slash"></i></button></div>
+                    </div>
+                    <button type="submit" class="auth-btn">Đăng nhập</button>
+                    <p class="auth-switch">Chưa có tài khoản? <a href="#" id="showRegister">Đăng ký</a></p>
+                </form>
+                <!-- Register Form -->
+                <form id="registerForm" class="auth-modal-form" style="display:none;">
+                    <h3>Đăng ký tài khoản</h3>
+                    <div class="form-group"><label>Tên đăng nhập</label><input type="text" id="regUsername" placeholder="username" required minlength="3"></div>
+                    <div class="form-group"><label>Email</label><input type="email" id="regEmail" placeholder="email@example.com" required></div>
+                    <div class="form-group"><label>Mật khẩu</label>
+                        <div class="password-wrap"><input type="password" id="regPassword" placeholder="Tối thiểu 6 ký tự" required minlength="6"><button type="button" class="pw-toggle" onclick="togglePassword('regPassword', this)"><i class="fas fa-eye-slash"></i></button></div>
+                    </div>
+                    <button type="submit" class="auth-btn">Đăng ký</button>
+                    <p class="auth-switch">Đã có tài khoản? <a href="#" id="showLogin">Đăng nhập</a></p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shared Scripts -->
+    <script src="/js/utils.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/sidebar.js"></script>
+    <script src="/js/app.js"></script>
+    <%- typeof extraJS !== 'undefined' ? extraJS : '' %>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!-- Chat Page Content -->
+<div class="chat-container">
+    <div class="chat-messages" id="chatMessages">
+        <div class="chat-welcome">
+            <div class="welcome-icon"><img src="/assets/logo.png" alt="Kira" style="width:40px;height:40px;border-radius:12px;"></div>
+            <h2>Xin chào! Tôi là Kira Agent Platform</h2>
+            <p>Hãy hỏi tôi bất cứ điều gì, tôi sẵn sàng hỗ trợ bạn.</p>
+        </div>
+    </div>
+    <div class="chat-input-area">
+        <div class="file-preview" id="chatFilePreview" style="display:none;"></div>
+        <div class="chat-input-bar">
+            <button class="attach-btn" id="chatAttachBtn" title="Đính kèm file"><i class="fas fa-paperclip"></i></button>
+            <input type="file" id="chatFileInput" multiple accept="image/*,.pdf,.txt,.doc,.docx" style="display:none;">
+            <textarea id="chatInput" placeholder="Hỏi bất kỳ điều gì" rows="1"></textarea>
+            <button class="send-btn" id="chatSendBtn" title="Gửi"><i class="fas fa-paper-plane"></i></button>
+        </div>
+        <p class="chat-disclaimer">Kira Agent Platform có thể mắc lỗi. Hãy kiểm tra các thông tin quan trọng.</p>
+    </div>
+</div>
+
+<script src="/js/chat.js"></script>

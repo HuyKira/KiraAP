@@ -1,0 +1,64 @@
+<div class="admin-page-header">
+    <h2>Quản lý khoá API</h2>
+    <button class="btn btn-primary" onclick="openAddKeyModal()"><i class="fas fa-plus"></i> Thêm khoá API</button>
+</div>
+<div class="data-table-wrap">
+    <table class="data-table">
+        <thead><tr><th>Tên</th><th>API Key</th><th>Project Number</th><th>Lượt dùng</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+        <tbody>
+        <% keys.forEach(function(k) { %>
+        <tr id="key-<%= k._id %>">
+            <td><%= k.name %></td>
+            <td><code class="key-masked"><%= k.key.substring(0,8) %>...****</code></td>
+            <td><%= k.projectNumber || '—' %></td>
+            <td><%= k.usageCount %></td>
+            <td><span class="badge badge-<%= k.isActive ? 'success' : 'danger' %>"><%= k.isActive ? 'Hoạt động' : 'Tắt' %></span></td>
+            <td class="actions">
+                <button class="btn-icon" onclick="editKey('<%= k._id %>','<%= k.name %>','<%= k.key %>','<%= k.projectNumber %>',<%= k.isActive %>)" title="Sửa"><i class="fas fa-edit"></i></button>
+                <button class="btn-icon btn-danger" onclick="deleteKey('<%= k._id %>')" title="Xoá"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+        <% }); %>
+        <% if (keys.length === 0) { %><tr><td colspan="6" class="empty-text">Chưa có khoá API nào</td></tr><% } %>
+        </tbody>
+    </table>
+</div>
+<script>
+function openAddKeyModal() {
+    showModal('Thêm khoá API',
+        '<div class="form-group"><label>Tên</label><input type="text" id="keyName" placeholder="VD: Key chính"></div>' +
+        '<div class="form-group"><label>API Key</label><input type="text" id="keyValue" placeholder="AIza..."></div>' +
+        '<div class="form-group"><label>Project Number (cho Video)</label><input type="text" id="keyProject" placeholder="640527817992"></div>',
+        '<button class="btn btn-secondary" onclick="closeModal()">Huỷ</button><button class="btn btn-primary" onclick="saveKey()">Lưu</button>'
+    );
+}
+async function saveKey() {
+    const data = { name: document.getElementById('keyName').value, key: document.getElementById('keyValue').value, projectNumber: document.getElementById('keyProject').value };
+    if (!data.name || !data.key) return showToast('Vui lòng nhập đầy đủ', 'error');
+    const res = await adminFetch('/admin/api-keys/api', { method: 'POST', body: JSON.stringify(data) });
+    if (res?.success) { showToast('Đã thêm khoá API', 'success'); closeModal(); location.reload(); }
+    else showToast(res?.message || 'Lỗi', 'error');
+}
+function editKey(id, name, key, project, active) {
+    showModal('Sửa khoá API',
+        '<div class="form-group"><label>Tên</label><input type="text" id="editKeyName" value="' + name + '"></div>' +
+        '<div class="form-group"><label>API Key</label><input type="text" id="editKeyValue" value="' + key + '"></div>' +
+        '<div class="form-group"><label>Project Number</label><input type="text" id="editKeyProject" value="' + (project||'') + '"></div>' +
+        '<div class="form-group"><label><input type="checkbox" id="editKeyActive" ' + (active?'checked':'') + '> Hoạt động</label></div>',
+        '<button class="btn btn-secondary" onclick="closeModal()">Huỷ</button><button class="btn btn-primary" onclick="updateKey(\'' + id + '\')">Cập nhật</button>'
+    );
+}
+async function updateKey(id) {
+    const data = { name: document.getElementById('editKeyName').value, key: document.getElementById('editKeyValue').value, projectNumber: document.getElementById('editKeyProject').value, isActive: document.getElementById('editKeyActive').checked };
+    const res = await adminFetch('/admin/api-keys/api/' + id, { method: 'PUT', body: JSON.stringify(data) });
+    if (res?.success) { showToast('Đã cập nhật', 'success'); closeModal(); location.reload(); }
+    else showToast(res?.message || 'Lỗi', 'error');
+}
+async function deleteKey(id) {
+    const ok = await showConfirm('Xoá khoá API', 'Bạn chắc chắn muốn xoá khoá API này?');
+    if (!ok) return;
+    const res = await adminFetch('/admin/api-keys/api/' + id, { method: 'DELETE' });
+    if (res?.success) { showToast('Đã xoá', 'success'); document.getElementById('key-' + id)?.remove(); }
+    else showToast(res?.message || 'Lỗi', 'error');
+}
+</script>

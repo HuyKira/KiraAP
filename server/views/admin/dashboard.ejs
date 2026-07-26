@@ -1,0 +1,111 @@
+<div class="dashboard-grid">
+    <!-- Stat Cards -->
+    <div class="stat-cards">
+        <div class="stat-card stat-orange">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-info">
+                <span class="stat-value"><%= stats.totalUsers %></span>
+                <span class="stat-label">Người dùng</span>
+            </div>
+        </div>
+        <div class="stat-card stat-brown">
+            <div class="stat-icon"><i class="fas fa-key"></i></div>
+            <div class="stat-info">
+                <span class="stat-value"><%= stats.totalApiKeys %></span>
+                <span class="stat-label">API Key hoạt động</span>
+            </div>
+        </div>
+        <div class="stat-card stat-amber">
+            <div class="stat-icon"><i class="fas fa-bolt"></i></div>
+            <div class="stat-info">
+                <span class="stat-value"><%= stats.todayRequests.toLocaleString() %></span>
+                <span class="stat-label">Yêu cầu hôm nay</span>
+            </div>
+        </div>
+        <div class="stat-card stat-sienna">
+            <div class="stat-icon"><i class="fas fa-coins"></i></div>
+            <div class="stat-info">
+                <span class="stat-value"><%= stats.totalTokens > 1000000 ? (stats.totalTokens / 1000000).toFixed(1) + 'M' : stats.totalTokens > 1000 ? (stats.totalTokens / 1000).toFixed(1) + 'K' : stats.totalTokens %></span>
+                <span class="stat-label">Tổng token</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="charts-row">
+        <div class="chart-card">
+            <h3>Sử dụng API theo thời gian</h3>
+            <canvas id="usageChart" height="250"></canvas>
+        </div>
+        <div class="chart-card chart-small">
+            <h3>Top mô hình phổ biến</h3>
+            <div class="model-bars">
+                <% topModels.forEach(function(m) { %>
+                <div class="model-bar-item">
+                    <span class="model-name"><%= m._id %></span>
+                    <div class="model-bar-track">
+                        <div class="model-bar-fill" style="width:<%= topModels[0].count > 0 ? (m.count / topModels[0].count * 100) : 0 %>%"></div>
+                    </div>
+                    <span class="model-count"><%= m.count %></span>
+                </div>
+                <% }); %>
+                <% if (topModels.length === 0) { %><p class="empty-text">Chưa có dữ liệu</p><% } %>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="recent-card">
+        <h3>Hoạt động gần đây</h3>
+        <div class="activity-list">
+            <% recentLogs.forEach(function(log) { %>
+            <div class="activity-item">
+                <div class="activity-icon activity-<%= log.status %>">
+                    <i class="fas fa-<%= log.category === 'text' ? 'comment' : log.category === 'image' ? 'image' : log.category === 'video' ? 'video' : 'microphone' %>"></i>
+                </div>
+                <div class="activity-info">
+                    <span class="activity-user"><%= log.username || 'user' %></span>
+                    <span class="activity-desc">đã sử dụng <strong><%= log.modelUsed %></strong> (<%= log.category %>)</span>
+                </div>
+                <div class="activity-meta">
+                    <span class="activity-tokens"><%= log.tokenTotal %> tokens</span>
+                    <span class="activity-time"><%= new Date(log.createdAt).toLocaleString('vi-VN') %></span>
+                </div>
+            </div>
+            <% }); %>
+            <% if (recentLogs.length === 0) { %><p class="empty-text">Chưa có hoạt động</p><% } %>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script>
+// Usage chart
+const chartData = <%- JSON.stringify(chartData) %>;
+if (chartData.length > 0) {
+    new Chart(document.getElementById('usageChart'), {
+        type: 'line',
+        data: {
+            labels: chartData.map(d => { const dt = new Date(d._id); return dt.getDate() + '/' + (dt.getMonth()+1); }),
+            datasets: [{
+                label: 'Số yêu cầu',
+                data: chartData.map(d => d.count),
+                borderColor: '#E8740C',
+                backgroundColor: 'rgba(232,116,12,0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#F5A623'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: '#B8A08C' } } },
+            scales: {
+                x: { ticks: { color: '#B8A08C' }, grid: { color: 'rgba(232,116,12,0.1)' } },
+                y: { ticks: { color: '#B8A08C' }, grid: { color: 'rgba(232,116,12,0.1)' } }
+            }
+        }
+    });
+}
+</script>

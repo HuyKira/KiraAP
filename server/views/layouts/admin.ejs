@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kira Agent Platform Admin - <%- typeof pageTitle !== 'undefined' ? pageTitle : 'Quản trị' %></title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <%- typeof extraCSS !== 'undefined' ? extraCSS : '' %>
+</head>
+<body class="admin-body">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="sidebar-header">
+            <div class="admin-logo">
+                <img src="/assets/logo.png" alt="Kira" class="logo-img">
+                <span class="logo-text">Kira Agent Platform</span>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="/admin" class="nav-item <%= typeof activePage !== 'undefined' && activePage === 'dashboard' ? 'active' : '' %>">
+                <i class="fas fa-chart-pie"></i>
+                <span>Tổng quan</span>
+            </a>
+            <a href="/admin/models" class="nav-item <%= typeof activePage !== 'undefined' && activePage === 'models' ? 'active' : '' %>">
+                <i class="fas fa-robot"></i>
+                <span>Mô hình AI</span>
+            </a>
+            <a href="/admin/users" class="nav-item <%= typeof activePage !== 'undefined' && activePage === 'users' ? 'active' : '' %>">
+                <i class="fas fa-users"></i>
+                <span>Người dùng</span>
+            </a>
+            <a href="/admin/media" class="nav-item <%= typeof activePage !== 'undefined' && activePage === 'media' ? 'active' : '' %>">
+                <i class="fas fa-photo-film"></i>
+                <span>Thư viện</span>
+            </a>
+            <a href="/admin/api-keys" class="nav-item <%= typeof activePage !== 'undefined' && activePage === 'apiKeys' ? 'active' : '' %>">
+                <i class="fas fa-key"></i>
+                <span>Khoá API</span>
+            </a>
+            <a href="/admin/user-api-keys" class="nav-item <%= typeof activePage !== 'undefined' && activePage === 'userApiKeys' ? 'active' : '' %>">
+                <i class="fas fa-user-lock"></i>
+                <span>User API Keys</span>
+            </a>
+            <a href="/admin/logs" class="nav-item <%= typeof activePage !== 'undefined' && activePage === 'logs' ? 'active' : '' %>">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Nhật ký AI</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="admin-user">
+                <div class="user-avatar"><i class="fas fa-user-shield"></i></div>
+                <div class="user-info">
+                    <span class="user-name"><%= typeof adminUser !== 'undefined' ? adminUser.displayName : 'Admin' %></span>
+                    <span class="user-role">Quản trị viên</span>
+                </div>
+            </div>
+            <a href="#" class="logout-btn" id="adminLogout"><i class="fas fa-sign-out-alt"></i></a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+        <!-- Topbar -->
+        <header class="admin-topbar">
+            <button class="mobile-toggle" id="mobileToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="page-title"><%- typeof pageTitle !== 'undefined' ? pageTitle : '' %></h1>
+            <div class="topbar-actions">
+                <a href="/" class="topbar-btn" target="_blank" title="Xem trang người dùng">
+                    <i class="fas fa-external-link-alt"></i>
+                </a>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <div class="admin-content">
+            <%- body %>
+        </div>
+    </main>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Modal Container -->
+    <div id="modalOverlay" class="modal-overlay" style="display:none;">
+        <div class="modal-box" id="modalBox">
+            <div class="modal-header">
+                <h3 id="modalTitle"></h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer" id="modalFooter"></div>
+        </div>
+    </div>
+
+    <script>
+    // Admin auth token management
+    const ADMIN_TOKEN_KEY = 'kiraap_admin_token';
+
+    function getAdminToken() {
+        return localStorage.getItem(ADMIN_TOKEN_KEY) || getCookie('token');
+    }
+
+    function getCookie(name) {
+        const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+        return match ? match[2] : null;
+    }
+
+    // Toast notification
+    function showToast(message, type = 'info', duration = 3000) {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = 'toast toast-' + type;
+        toast.innerHTML = '<span>' + message + '</span><button class="toast-close" onclick="this.parentElement.remove()">&times;</button>';
+        container.appendChild(toast);
+        setTimeout(() => toast.classList.add('show'), 10);
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, duration);
+    }
+
+    // Modal
+    function showModal(title, bodyHTML, footerHTML) {
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalBody').innerHTML = bodyHTML;
+        document.getElementById('modalFooter').innerHTML = footerHTML || '';
+        document.getElementById('modalOverlay').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('modalOverlay').style.display = 'none';
+    }
+
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+
+    // Confirm dialog (thay thế confirm() built-in)
+    function showConfirm(title, message) {
+        return new Promise((resolve) => {
+            const bodyHTML = '<p>' + message + '</p>';
+            const footerHTML = '<button class="btn btn-secondary" onclick="closeModal(); window._confirmResolve(false)">Huỷ</button>' +
+                '<button class="btn btn-danger" onclick="closeModal(); window._confirmResolve(true)">Xác nhận</button>';
+            window._confirmResolve = resolve;
+            showModal(title, bodyHTML, footerHTML);
+        });
+    }
+
+    // Sidebar toggle
+    document.getElementById('mobileToggle')?.addEventListener('click', () => {
+        document.getElementById('adminSidebar').classList.toggle('show');
+    });
+
+    // Logout
+    document.getElementById('adminLogout')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.removeItem(ADMIN_TOKEN_KEY);
+        document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        window.location.href = '/admin/login';
+    });
+
+    // Admin API helper
+    async function adminFetch(url, options = {}) {
+        const token = getAdminToken();
+        const headers = {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': 'Bearer ' + token } : {}),
+            ...(options.headers || {})
+        };
+        const res = await fetch(url, { ...options, headers });
+        if (res.status === 401) {
+            window.location.href = '/admin/login';
+            return null;
+        }
+        return res.json();
+    }
+    </script>
+    <%- typeof extraJS !== 'undefined' ? extraJS : '' %>
+</body>
+</html>

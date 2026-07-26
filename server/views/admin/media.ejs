@@ -1,0 +1,50 @@
+<div class="admin-page-header">
+    <h2>Thư viện media (<%= total %>)</h2>
+    <div class="filter-group">
+        <a href="/admin/media" class="btn btn-sm <%= !type ? 'btn-primary' : 'btn-secondary' %>">Tất cả</a>
+        <a href="/admin/media?type=image" class="btn btn-sm <%= type === 'image' ? 'btn-primary' : 'btn-secondary' %>">Ảnh</a>
+        <a href="/admin/media?type=video" class="btn btn-sm <%= type === 'video' ? 'btn-primary' : 'btn-secondary' %>">Video</a>
+        <a href="/admin/media?type=audio" class="btn btn-sm <%= type === 'audio' ? 'btn-primary' : 'btn-secondary' %>">Audio</a>
+    </div>
+</div>
+<div class="media-grid">
+    <% media.forEach(function(m) { %>
+    <div class="media-card" id="media-<%= m._id %>">
+        <div class="media-preview">
+            <% if (m.type === 'image') { %>
+            <img src="<%= m.filePath %>" alt="<%= m.prompt %>" loading="lazy">
+            <% } else if (m.type === 'video') { %>
+            <video src="<%= m.filePath %>" preload="metadata"></video>
+            <div class="media-type-badge"><i class="fas fa-play"></i></div>
+            <% } else { %>
+            <div class="media-audio-icon"><i class="fas fa-headphones"></i></div>
+            <% } %>
+        </div>
+        <div class="media-info">
+            <p class="media-prompt" title="<%= m.prompt %>"><%= m.prompt ? m.prompt.substring(0,60) : 'Không có mô tả' %></p>
+            <span class="media-meta"><%= m.userId?.username || 'user' %> · <%= new Date(m.createdAt).toLocaleDateString('vi-VN') %></span>
+        </div>
+        <div class="media-actions">
+            <a href="<%= m.filePath %>" download class="btn-icon" title="Tải về"><i class="fas fa-download"></i></a>
+            <button class="btn-icon btn-danger" onclick="deleteMedia('<%= m._id %>')" title="Xoá"><i class="fas fa-trash"></i></button>
+        </div>
+    </div>
+    <% }); %>
+    <% if (media.length === 0) { %><p class="empty-text">Chưa có media nào</p><% } %>
+</div>
+<% if (totalPages > 1) { %>
+<div class="pagination">
+    <% for (let i = 1; i <= totalPages; i++) { %>
+    <a href="/admin/media?page=<%= i %>&type=<%= type || '' %>" class="page-btn <%= i === page ? 'active' : '' %>"><%= i %></a>
+    <% } %>
+</div>
+<% } %>
+<script>
+async function deleteMedia(id) {
+    const ok = await showConfirm('Xoá media', 'Bạn chắc chắn muốn xoá media này?');
+    if (!ok) return;
+    const res = await adminFetch('/admin/media/api/' + id, { method: 'DELETE' });
+    if (res?.success) { showToast('Đã xoá', 'success'); document.getElementById('media-' + id)?.remove(); }
+    else showToast(res?.message || 'Lỗi', 'error');
+}
+</script>

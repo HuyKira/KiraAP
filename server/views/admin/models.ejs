@@ -1,0 +1,81 @@
+<div class="admin-page-header">
+    <h2>Mô hình AI</h2>
+    <button class="btn btn-primary" onclick="openAddModelModal()"><i class="fas fa-plus"></i> Thêm mô hình</button>
+</div>
+<div class="model-tabs">
+    <button class="tab-btn active" onclick="switchTab(this,'text')">Văn bản</button>
+    <button class="tab-btn" onclick="switchTab(this,'image')">Hình ảnh</button>
+    <button class="tab-btn" onclick="switchTab(this,'video')">Video</button>
+    <button class="tab-btn" onclick="switchTab(this,'tts')">Giọng nói</button>
+</div>
+<% ['text','image','video','tts'].forEach(function(cat) { %>
+<div class="tab-content" id="tab-<%= cat %>" style="<%= cat === 'text' ? '' : 'display:none' %>">
+    <div class="data-table-wrap">
+        <table class="data-table"><thead><tr><th>Model ID</th><th>Tên hiển thị</th><th>Mặc định</th><th>Trạng thái</th><th>System Prompt</th><th>Thao tác</th></tr></thead>
+        <tbody>
+        <% (models[cat] || []).forEach(function(m) { %>
+        <tr id="model-<%= m._id %>">
+            <td><code><%= m.modelId %></code></td>
+            <td><%= m.displayName %></td>
+            <td><%= m.isDefault ? '⭐' : '—' %></td>
+            <td><span class="badge badge-<%= m.isActive ? 'success' : 'danger' %>"><%= m.isActive ? 'Bật' : 'Tắt' %></span></td>
+            <td class="truncate" title="<%= m.systemPrompt || '' %>"><%= m.systemPrompt ? m.systemPrompt.substring(0,50) + '...' : '—' %></td>
+            <td class="actions">
+                <button class="btn-icon" onclick='editModel(<%- JSON.stringify(m) %>)' title="Sửa"><i class="fas fa-edit"></i></button>
+                <button class="btn-icon btn-danger" onclick="deleteModel('<%= m._id %>')" title="Xoá"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+        <% }); %>
+        <% if (!models[cat] || models[cat].length === 0) { %><tr><td colspan="6" class="empty-text">Chưa có mô hình</td></tr><% } %>
+        </tbody></table>
+    </div>
+</div>
+<% }); %>
+<script>
+function switchTab(btn, cat) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+    btn.classList.add('active');
+    document.getElementById('tab-' + cat).style.display = '';
+}
+function openAddModelModal() {
+    showModal('Thêm mô hình AI',
+        '<div class="form-group"><label>Danh mục</label><select id="addModelCat"><option value="text">Văn bản</option><option value="image">Hình ảnh</option><option value="video">Video</option><option value="tts">Giọng nói</option></select></div>' +
+        '<div class="form-group"><label>Model ID</label><input type="text" id="addModelId" placeholder="gemini-2.5-flash"></div>' +
+        '<div class="form-group"><label>Tên hiển thị</label><input type="text" id="addModelName" placeholder="Gemini 2.5 Flash"></div>' +
+        '<div class="form-group"><label>System Prompt</label><textarea id="addModelPrompt" rows="3" placeholder="Tuỳ chọn..."></textarea></div>' +
+        '<div class="form-group"><label><input type="checkbox" id="addModelDefault"> Đặt làm mặc định</label></div>',
+        '<button class="btn btn-secondary" onclick="closeModal()">Huỷ</button><button class="btn btn-primary" onclick="saveModel()">Lưu</button>'
+    );
+}
+async function saveModel() {
+    const data = { category: document.getElementById('addModelCat').value, modelId: document.getElementById('addModelId').value, displayName: document.getElementById('addModelName').value, systemPrompt: document.getElementById('addModelPrompt').value, isDefault: document.getElementById('addModelDefault').checked };
+    if (!data.modelId || !data.displayName) return showToast('Vui lòng nhập đầy đủ', 'error');
+    const res = await adminFetch('/admin/models/api', { method: 'POST', body: JSON.stringify(data) });
+    if (res?.success) { showToast('Đã thêm mô hình', 'success'); closeModal(); location.reload(); }
+    else showToast(res?.message || 'Lỗi', 'error');
+}
+function editModel(m) {
+    showModal('Sửa mô hình',
+        '<div class="form-group"><label>Model ID</label><input type="text" id="editModelId" value="' + m.modelId + '"></div>' +
+        '<div class="form-group"><label>Tên hiển thị</label><input type="text" id="editModelName" value="' + m.displayName + '"></div>' +
+        '<div class="form-group"><label>System Prompt</label><textarea id="editModelPrompt" rows="3">' + (m.systemPrompt||'') + '</textarea></div>' +
+        '<div class="form-group"><label><input type="checkbox" id="editModelDefault" ' + (m.isDefault?'checked':'') + '> Mặc định</label></div>' +
+        '<div class="form-group"><label><input type="checkbox" id="editModelActive" ' + (m.isActive?'checked':'') + '> Hoạt động</label></div>',
+        '<button class="btn btn-secondary" onclick="closeModal()">Huỷ</button><button class="btn btn-primary" onclick="updateModel(\'' + m._id + '\')">Cập nhật</button>'
+    );
+}
+async function updateModel(id) {
+    const data = { modelId: document.getElementById('editModelId').value, displayName: document.getElementById('editModelName').value, systemPrompt: document.getElementById('editModelPrompt').value, isDefault: document.getElementById('editModelDefault').checked, isActive: document.getElementById('editModelActive').checked };
+    const res = await adminFetch('/admin/models/api/' + id, { method: 'PUT', body: JSON.stringify(data) });
+    if (res?.success) { showToast('Đã cập nhật', 'success'); closeModal(); location.reload(); }
+    else showToast(res?.message || 'Lỗi', 'error');
+}
+async function deleteModel(id) {
+    const ok = await showConfirm('Xoá mô hình', 'Bạn chắc chắn muốn xoá mô hình này?');
+    if (!ok) return;
+    const res = await adminFetch('/admin/models/api/' + id, { method: 'DELETE' });
+    if (res?.success) { showToast('Đã xoá', 'success'); document.getElementById('model-' + id)?.remove(); }
+    else showToast(res?.message || 'Lỗi', 'error');
+}
+</script>

@@ -1,0 +1,59 @@
+<!-- Video Generation Page Content -->
+<div class="gen-container">
+    <div class="gen-form">
+        <textarea id="videoPrompt" class="gen-prompt" placeholder="Mô tả video bạn muốn tạo..." rows="3"></textarea>
+        <div class="gen-upload-zone" id="videoUploadZone" style="margin-top:12px;">
+            <input type="file" id="videoRefInput" accept="image/*,video/*" style="display:none;">
+            <div class="upload-placeholder" id="videoUploadPlaceholder">
+                <i class="fas fa-file-video"></i>
+                <span>Tải ảnh tham chiếu (Image-to-Video) hoặc video (Video Edit)</span>
+                <small>Tất cả model hỗ trợ ảnh · Tệp video (Video Edit) dành cho Gemini Omni · JPG, PNG, MP4</small>
+            </div>
+            <div class="upload-preview" id="videoRefPreview" style="display:none;padding:10px;align-items:center;gap:12px;"></div>
+        </div>
+        <div class="gen-options" style="flex-wrap:wrap;gap:12px;margin-top:12px;">
+            <div class="aspect-ratio-group" style="flex-wrap:wrap;gap:6px;">
+                <span class="option-label">Tỷ lệ:</span>
+                <button class="aspect-btn active" data-ratio="16:9">16:9</button>
+                <button class="aspect-btn" data-ratio="9:16">9:16</button>
+                <button class="aspect-btn" data-ratio="1:1">1:1</button>
+                <button class="aspect-btn" data-ratio="4:3">4:3</button>
+            </div>
+            <div class="duration-group" style="flex-wrap:wrap;gap:6px;">
+                <span class="option-label">Thời lượng:</span>
+                <button class="duration-btn" data-dur="5">5 giây</button>
+                <button class="duration-btn active" data-dur="6">6 giây</button>
+                <button class="duration-btn" data-dur="8">8 giây</button>
+                <button class="duration-btn" data-dur="10" style="display:none;">10 giây</button>
+            </div>
+            <button class="gen-submit-btn" id="videoGenBtn"><i class="fas fa-film"></i> Tạo video</button>
+        </div>
+    </div>
+    <div class="gen-results" id="videoResults">
+        <div class="video-progress" id="videoProgress" style="display:none;">
+            <div class="progress-circle">
+                <svg viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(232,116,12,0.15)" stroke-width="8" />
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="#E8740C" stroke-width="8"
+                        stroke-dasharray="283" stroke-dashoffset="283" stroke-linecap="round" id="progressRing" />
+                </svg>
+                <span class="progress-text" id="progressText">Đang chờ...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Gallery Section -->
+    <div class="gen-gallery-section" id="videoGallerySection">
+        <div class="gallery-header">
+            <h3 class="gallery-title"><i class="fas fa-film"></i> Bộ sưu tập video đã tạo</h3>
+            <button class="gallery-refresh-btn" id="refreshVideoGallery" title="Tải lại bộ sưu tập">
+                <i class="fas fa-sync-alt"></i> Tải lại
+            </button>
+        </div>
+        <div class="gallery-grid" id="videoGalleryGrid">
+            <!-- Dynamic video gallery cards -->
+        </div>
+    </div>
+</div>
+
+<script src="/js/videoGen.js"></script>

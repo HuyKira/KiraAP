@@ -1,0 +1,122 @@
+<div class="admin-page-header">
+    <h2>Nhật ký AI (<%= total %>)</h2>
+    <a href="/admin/logs/export?category=<%= filters.category || '' %>&status=<%= filters.status || '' %>" class="btn btn-secondary"><i class="fas fa-download"></i> Xuất CSV</a>
+</div>
+<form class="filter-bar" action="/admin/logs" method="GET">
+    <select name="category"><option value="">Tất cả loại</option><option value="text" <%= filters.category === 'text' ? 'selected' : '' %>>Văn bản</option><option value="image" <%= filters.category === 'image' ? 'selected' : '' %>>Hình ảnh</option><option value="video" <%= filters.category === 'video' ? 'selected' : '' %>>Video</option><option value="tts" <%= filters.category === 'tts' ? 'selected' : '' %>>Giọng nói</option></select>
+    <select name="status"><option value="">Tất cả trạng thái</option><option value="success" <%= filters.status === 'success' ? 'selected' : '' %>>Thành công</option><option value="error" <%= filters.status === 'error' ? 'selected' : '' %>>Lỗi</option></select>
+    <input type="text" name="username" placeholder="Tên người dùng..." value="<%= filters.username || '' %>">
+    <button type="submit" class="btn btn-primary">Lọc</button>
+</form>
+<div class="data-table-wrap">
+    <table class="data-table">
+        <thead><tr><th>Thời gian</th><th>Người dùng</th><th>Model</th><th>Loại</th><th>Token vào</th><th>Token ra</th><th>Tổng</th><th>Phản hồi</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+        <tbody>
+        <% logs.forEach(function(l) { %>
+        <tr>
+            <td><%= new Date(l.createdAt).toLocaleString('vi-VN') %></td>
+            <td><%= l.username || '—' %></td>
+            <td><code><%= l.modelUsed %></code></td>
+            <td><span class="badge badge-<%= l.category === 'text' ? 'info' : l.category === 'image' ? 'warning' : l.category === 'video' ? 'success' : 'secondary' %>"><%= l.category %></span></td>
+            <td><%= l.tokenInput.toLocaleString() %></td>
+            <td><%= l.tokenOutput.toLocaleString() %></td>
+            <td><strong><%= l.tokenTotal.toLocaleString() %></strong></td>
+            <td><%= l.responseTime %>ms</td>
+            <td><span class="badge badge-<%= l.status === 'success' ? 'success' : 'danger' %>"><%= l.status === 'success' ? '✓' : '✗' %></span></td>
+            <td class="actions">
+                <button class="btn-icon" onclick='viewLogDetails(<%- JSON.stringify(l) %>)' title="Xem chi tiết"><i class="fas fa-eye"></i></button>
+            </td>
+        </tr>
+        <% }); %>
+        <% if (logs.length === 0) { %><tr><td colspan="10" class="empty-text">Chưa có nhật ký</td></tr><% } %>
+        </tbody>
+    </table>
+</div>
+<% if (totalPages > 1) { %>
+<div class="pagination">
+    <% for (let i = 1; i <= totalPages; i++) { %>
+    <a href="/admin/logs?page=<%= i %>&category=<%= filters.category || '' %>&status=<%= filters.status || '' %>&username=<%= filters.username || '' %>" class="page-btn <%= i === page ? 'active' : '' %>"><%= i %></a>
+    <% } %>
+</div>
+<% } %>
+
+<script>
+function viewLogDetails(log) {
+    const isError = log.status === 'error';
+    const statusBadge = isError 
+        ? '<span class="badge badge-danger">Lỗi</span>' 
+        : '<span class="badge badge-success">Thành công</span>';
+    const catBadge = '<span class="badge badge-' + (log.category === 'text' ? 'info' : log.category === 'image' ? 'warning' : log.category === 'video' ? 'success' : 'secondary') + '">' + log.category + '</span>';
+    
+    const bodyHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;font-size:0.9rem;">
+            <div><strong>Mã log ID:</strong> <code style="font-size:0.8rem;">${log._id}</code></div>
+            <div><strong>Thời gian:</strong> ${new Date(log.createdAt).toLocaleString('vi-VN')}</div>
+            <div><strong>Người dùng:</strong> <strong>${log.username || '—'}</strong></div>
+            <div><strong>Loại AI:</strong> ${catBadge}</div>
+            <div><strong>Model sử dụng:</strong> <code>${log.modelUsed}</code></div>
+            <div><strong>Trạng thái:</strong> ${statusBadge}</div>
+            <div><strong>API Key sử dụng:</strong> ${log.apiKeyName || 'Mặc định'}</div>
+            <div><strong>Thời gian xử lý:</strong> ${log.responseTime} ms</div>
+            <div><strong>Token đầu vào:</strong> ${log.tokenInput.toLocaleString()}</div>
+            <div><strong>Token đầu ra:</strong> ${log.tokenOutput.toLocaleString()}</div>
+            <div style="grid-column: span 2;"><strong>Tổng token:</strong> <strong style="color:var(--accent);font-size:1rem;">${log.tokenTotal.toLocaleString()}</strong></div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:12px;">
+            <label style="font-weight:600;margin-bottom:6px;display:block;">Nội dung prompt / Yêu cầu:</label>
+            <div style="width:100%;max-height:120px;overflow-y:auto;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--brown);font-family:'JetBrains Mono',monospace;font-size:0.85rem;white-space:pre-wrap;word-break:break-word;">${log.prompt ? escapeHtml(log.prompt) : '(Rỗng)'}</div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:12px;">
+            <label style="font-weight:600;margin-bottom:6px;display:block;">Nội dung phản hồi / Kết quả đầu ra:</label>
+            ${renderResponseOutput(log)}
+        </div>
+
+        ${log.errorMessage ? `
+        <div class="form-group">
+            <label style="font-weight:600;color:var(--error);margin-bottom:6px;display:block;">Chi tiết lỗi:</label>
+            <div style="width:100%;max-height:120px;overflow-y:auto;background:rgba(239,68,68,0.08);border:1px solid var(--error);border-radius:8px;padding:10px;color:var(--error);font-family:'JetBrains Mono',monospace;font-size:0.85rem;white-space:pre-wrap;word-break:break-word;">${escapeHtml(log.errorMessage)}</div>
+        </div>
+        ` : ''}
+    `;
+
+    const footerHTML = '<button class="btn btn-secondary" onclick="closeModal()">Đóng</button>';
+
+    showModal('Chi tiết nhật ký AI', bodyHTML, footerHTML);
+}
+
+function renderResponseOutput(log) {
+    if (!log.responseContent) return '<div style="color:var(--brown3);font-size:0.85rem;font-style:italic;">(Chưa có dữ liệu phản hồi)</div>';
+
+    if (log.category === 'image' && (log.responseContent.startsWith('/') || log.responseContent.startsWith('http') || log.responseContent.startsWith('data:'))) {
+        return `<div style="text-align:center;padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;">
+            <img src="${log.responseContent}" alt="Result" style="max-height:200px;border-radius:8px;object-fit:contain;">
+            <div style="margin-top:6px;"><a href="${log.responseContent}" target="_blank" style="font-size:0.8rem;color:var(--accent);">Mở ảnh gốc <i class="fas fa-external-link-alt"></i></a></div>
+        </div>`;
+    }
+
+    if (log.category === 'tts' && (log.responseContent.startsWith('/') || log.responseContent.startsWith('http') || log.responseContent.startsWith('data:'))) {
+        return `<div style="padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;">
+            <audio src="${log.responseContent}" controls style="width:100%;"></audio>
+        </div>`;
+    }
+
+    if (log.category === 'video' && (log.responseContent.startsWith('/') || log.responseContent.startsWith('http') || log.responseContent.startsWith('data:'))) {
+        return `<div style="text-align:center;padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;">
+            <video src="${log.responseContent}" controls style="max-height:220px;border-radius:8px;width:100%;"></video>
+        </div>`;
+    }
+
+    return `<div style="width:100%;max-height:160px;overflow-y:auto;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--brown);font-family:'JetBrains Mono',monospace;font-size:0.85rem;white-space:pre-wrap;word-break:break-word;">${escapeHtml(log.responseContent)}</div>`;
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g, "&amp;")
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;")
+              .replace(/"/g, "&quot;")
+              .replace(/'/g, "&#039;");
+}
+</script>

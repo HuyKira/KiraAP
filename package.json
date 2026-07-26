@@ -1,0 +1,39 @@
+{
+  "name": "kiraap",
+  "version": "1.0.0",
+  "description": "KiraAP - Nền tảng AI tích hợp Agent Platform API",
+  "main": "server/app.js",
+  "scripts": {
+    "start": "node server/app.js",
+    "dev": "nodemon server/app.js",
+    "seed": "node server/seed.js"
+  },
+  "keywords": [
+    "ai",
+    "agent-platform",
+    "gemini",
+    "nodejs",
+    "mongodb"
+  ],
+  "author": "KiraAP",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "ejs": "^6.0.1",
+    "express": "^5.2.1",
+    "express-ejs-layouts": "^2.5.1",
+    "express-rate-limit": "^8.6.0",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.8.0",
+    "morgan": "^1.11.0",
+    "multer": "^2.2.0",
+    "uuid": "^14.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

@@ -1,0 +1,56 @@
+<!-- Image Generation Page Content -->
+<div class="gen-container">
+    <div class="gen-form">
+        <textarea id="imagePrompt" class="gen-prompt" placeholder="Mô tả hình ảnh bạn muốn tạo..." rows="3"></textarea>
+        <div class="gen-upload-zone" id="imageUploadZone">
+            <input type="file" id="imageRefInput" accept="image/*" multiple style="display:none;">
+            <div class="upload-placeholder" id="imageUploadPlaceholder">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>Tải ảnh tham chiếu (tối đa 3 ảnh)</span>
+                <small>Kéo thả hoặc click · Chọn tối đa 3 ảnh · JPG, PNG, WEBP</small>
+            </div>
+            <div class="upload-preview-list" id="imageRefPreview" style="display:none;gap:10px;flex-wrap:wrap;padding:10px;"></div>
+        </div>
+        <div class="gen-options" style="flex-wrap:wrap;gap:12px;">
+            <div class="aspect-ratio-group" style="flex-wrap:wrap;gap:6px;">
+                <span class="option-label">Tỷ lệ:</span>
+                <button class="aspect-btn active" data-ratio="1:1">1:1</button>
+                <button class="aspect-btn" data-ratio="16:9">16:9</button>
+                <button class="aspect-btn" data-ratio="9:16">9:16</button>
+                <button class="aspect-btn" data-ratio="4:3">4:3</button>
+                <button class="aspect-btn" data-ratio="3:4">3:4</button>
+                <button class="aspect-btn" data-ratio="3:2">3:2</button>
+                <button class="aspect-btn" data-ratio="2:3">2:3</button>
+                <button class="aspect-btn" data-ratio="4:5">4:5</button>
+                <button class="aspect-btn" data-ratio="5:4">5:4</button>
+                <button class="aspect-btn" data-ratio="21:9">21:9</button>
+            </div>
+            <div class="count-group" style="display:flex;align-items:center;gap:6px;">
+                <span class="option-label">Số lượng:</span>
+                <button class="count-btn aspect-btn active" data-count="1">1 ảnh</button>
+                <button class="count-btn aspect-btn" data-count="2">2 ảnh</button>
+                <button class="count-btn aspect-btn" data-count="3">3 ảnh</button>
+                <button class="count-btn aspect-btn" data-count="4">4 ảnh</button>
+            </div>
+            <button class="gen-submit-btn" id="imageGenBtn"><i class="fas fa-magic"></i> Tạo ảnh</button>
+        </div>
+    </div>
+    <div class="gen-results" id="imageResults">
+        <!-- Dynamic images -->
+    </div>
+
+    <!-- Image Gallery Section -->
+    <div class="gen-gallery-section" id="imageGallerySection">
+        <div class="gallery-header">
+            <h3 class="gallery-title"><i class="fas fa-images"></i> Bộ sưu tập ảnh đã tạo</h3>
+            <button class="gallery-refresh-btn" id="refreshImageGallery" title="Tải lại bộ sưu tập">
+                <i class="fas fa-sync-alt"></i> Tải lại
+            </button>
+        </div>
+        <div class="gallery-grid" id="imageGalleryGrid">
+            <!-- Dynamic image gallery cards -->
+        </div>
+    </div>
+</div>
+
+<script src="/js/imageGen.js"></script>

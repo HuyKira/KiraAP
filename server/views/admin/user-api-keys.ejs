@@ -1,0 +1,99 @@
+<div class="admin-page-header">
+    <div>
+        <h2>User API Keys</h2>
+        <p style="font-size:.85rem;color:var(--text2);margin-top:4px;">Quản lý API key do người dùng tạo để gọi Proxy API</p>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="stat-cards">
+    <div class="stat-card stat-orange">
+        <div class="stat-icon"><i class="fas fa-key"></i></div>
+        <div class="stat-info"><div class="stat-value"><%= keys.length %></div><div class="stat-label">Tổng API key</div></div>
+    </div>
+    <div class="stat-card stat-brown">
+        <div class="stat-icon"><i class="fas fa-check"></i></div>
+        <div class="stat-info"><div class="stat-value"><%= keys.filter(k => k.isActive).length %></div><div class="stat-label">Đang hoạt động</div></div>
+    </div>
+    <div class="stat-card stat-amber">
+        <div class="stat-icon"><i class="fas fa-users"></i></div>
+        <div class="stat-info"><div class="stat-value"><%= [...new Set(keys.map(k => k.userId?.toString()))].length %></div><div class="stat-label">Người dùng</div></div>
+    </div>
+    <div class="stat-card stat-sienna">
+        <div class="stat-icon"><i class="fas fa-chart-bar"></i></div>
+        <div class="stat-info"><div class="stat-value"><%= keys.reduce((sum, k) => sum + (k.usageCount || 0), 0) %></div><div class="stat-label">Tổng lượt gọi</div></div>
+    </div>
+</div>
+
+<div class="data-table-wrap">
+    <table class="data-table">
+        <thead><tr>
+            <th>Người dùng</th>
+            <th>Tên key</th>
+            <th>API Key</th>
+            <th>Lượt gọi</th>
+            <th>Sử dụng cuối</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
+        </tr></thead>
+        <tbody>
+        <% keys.forEach(function(k) { %>
+        <tr id="ukey-<%= k._id %>">
+            <td>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <div style="width:28px;height:28px;border-radius:50%;background:var(--admin-hover);display:flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--text2);"><i class="fas fa-user"></i></div>
+                    <div>
+                        <div style="font-size:.85rem;font-weight:500;"><%= k.userId?.displayName || k.userId?.username || 'N/A' %></div>
+                        <div style="font-size:.72rem;color:var(--text2);"><%= k.userId?.email || '' %></div>
+                    </div>
+                </div>
+            </td>
+            <td><%= k.name %></td>
+            <td><code class="key-masked">kira_sk_••••<%= k.key.slice(-4) %></code></td>
+            <td><%= k.usageCount || 0 %></td>
+            <td style="font-size:.82rem;color:var(--text2);"><%= k.lastUsedAt ? new Date(k.lastUsedAt).toLocaleString('vi-VN') : '—' %></td>
+            <td><span class="badge badge-<%= k.isActive ? 'success' : 'danger' %>"><%= k.isActive ? 'Hoạt động' : 'Tắt' %></span></td>
+            <td class="actions">
+                <button class="btn-icon" onclick="toggleUserKey('<%= k._id %>', <%= !k.isActive %>)" title="<%= k.isActive ? 'Tắt' : 'Bật' %>">
+                    <i class="fas fa-<%= k.isActive ? 'ban' : 'check' %>"></i>
+                </button>
+                <button class="btn-icon btn-danger" onclick="deleteUserKey('<%= k._id %>')" title="Xoá">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>
+        <% }); %>
+        <% if (keys.length === 0) { %><tr><td colspan="7" class="empty-text">Chưa có user API key nào</td></tr><% } %>
+        </tbody>
+    </table>
+</div>
+
+<script>
+async function toggleUserKey(id, active) {
+    try {
+        const res = await fetch('/admin/user-api-keys/api/' + id, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ isActive: active })
+        });
+        const data = await res.json();
+        if (data.success) window.location.reload();
+        else showToast(data.message || 'Lỗi', 'error');
+    } catch (err) { showToast('Lỗi', 'error'); }
+}
+
+async function deleteUserKey(id) {
+    const ok = await showConfirm('Xoá User API Key', 'API key sẽ bị xoá vĩnh viễn. Bạn có chắc?');
+    if (!ok) return;
+    try {
+        const res = await fetch('/admin/user-api-keys/api/' + id, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+            document.getElementById('ukey-' + id)?.remove();
+            showToast('Đã xoá', 'success');
+        } else {
+            showToast(data.message || 'Lỗi', 'error');
+        }
+    } catch (err) { showToast('Lỗi', 'error'); }
+}
+</script>

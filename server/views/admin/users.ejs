@@ -1,0 +1,81 @@
+<div class="admin-page-header">
+    <h2>Người dùng (<%= total %>)</h2>
+    <form class="search-form" action="/admin/users" method="GET">
+        <input type="text" name="search" placeholder="Tìm theo tên, email..." value="<%= search || '' %>">
+        <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
+    </form>
+</div>
+<div class="data-table-wrap">
+    <table class="data-table">
+        <thead><tr><th>Tên đăng nhập</th><th>Email</th><th>Tên hiển thị</th><th>Vai trò</th><th>Trạng thái</th><th>Ngày tạo</th><th>Thao tác</th></tr></thead>
+        <tbody>
+        <% users.forEach(function(u) { %>
+        <tr id="user-<%= u._id %>">
+            <td><%= u.username %></td>
+            <td><%= u.email %></td>
+            <td><%= u.displayName %></td>
+            <td><span class="badge badge-<%= u.role === 'admin' ? 'warning' : 'info' %>"><%= u.role === 'admin' ? 'Admin' : 'User' %></span></td>
+            <td><span class="badge badge-<%= u.isActive ? 'success' : 'danger' %>"><%= u.isActive ? 'Hoạt động' : 'Khoá' %></span></td>
+            <td><%= new Date(u.createdAt).toLocaleDateString('vi-VN') %></td>
+            <td class="actions">
+                <button class="btn-icon" onclick="editUser('<%= u._id %>','<%= u.displayName %>','<%= u.role %>',<%= u.isActive %>,'<%= u.email %>')" title="Sửa"><i class="fas fa-edit"></i></button>
+                <% if (u.role !== 'admin') { %>
+                <button class="btn-icon btn-danger" onclick="deleteUser('<%= u._id %>')" title="Xoá"><i class="fas fa-trash"></i></button>
+                <% } %>
+            </td>
+        </tr>
+        <% }); %>
+        </tbody>
+    </table>
+</div>
+<% if (totalPages > 1) { %>
+<div class="pagination">
+    <% for (let i = 1; i <= totalPages; i++) { %>
+    <a href="/admin/users?page=<%= i %>&search=<%= search || '' %>" class="page-btn <%= i === page ? 'active' : '' %>"><%= i %></a>
+    <% } %>
+</div>
+<% } %>
+<script>
+function generatePassword(len = 12) {
+    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%';
+    let pw = '';
+    for (let i = 0; i < len; i++) pw += chars.charAt(Math.floor(Math.random() * chars.length));
+    return pw;
+}
+function editUser(id, name, role, active, email) {
+    showModal('Sửa người dùng',
+        '<div class="form-group"><label>Tên hiển thị</label><input type="text" id="editUserName" value="' + name + '"></div>' +
+        '<div class="form-group"><label>Email</label><input type="email" id="editUserEmail" value="' + email + '"></div>' +
+        '<div class="form-group"><label>Vai trò</label><select id="editUserRole"><option value="user" ' + (role==='user'?'selected':'') + '>User</option><option value="admin" ' + (role==='admin'?'selected':'') + '>Admin</option></select></div>' +
+        '<div class="form-group"><label><input type="checkbox" id="editUserActive" ' + (active?'checked':'') + '> Hoạt động</label></div>' +
+        '<hr style="border-color:var(--admin-border);margin:12px 0;">' +
+        '<div class="form-group"><label>Đổi mật khẩu <small style="color:var(--text2);">(để trống nếu không đổi)</small></label>' +
+        '<div style="display:flex;gap:8px;"><input type="text" id="editUserPassword" placeholder="Mật khẩu mới (tối thiểu 6 ký tự)" style="flex:1;">' +
+        '<button type="button" class="btn btn-secondary" onclick="document.getElementById(\'editUserPassword\').value=generatePassword()" style="white-space:nowrap;padding:8px 12px;font-size:.82rem;"><i class="fas fa-dice"></i> Tạo</button></div></div>',
+        '<button class="btn btn-secondary" onclick="closeModal()">Huỷ</button><button class="btn btn-primary" onclick="updateUser(\'' + id + '\')">Cập nhật</button>'
+    );
+}
+async function updateUser(id) {
+    const data = {
+        displayName: document.getElementById('editUserName').value,
+        email: document.getElementById('editUserEmail').value,
+        role: document.getElementById('editUserRole').value,
+        isActive: document.getElementById('editUserActive').checked
+    };
+    const pw = document.getElementById('editUserPassword').value;
+    if (pw) {
+        if (pw.length < 6) { showToast('Mật khẩu phải có ít nhất 6 ký tự', 'error'); return; }
+        data.password = pw;
+    }
+    const res = await adminFetch('/admin/users/api/' + id, { method: 'PUT', body: JSON.stringify(data) });
+    if (res?.success) { showToast('Đã cập nhật', 'success'); closeModal(); location.reload(); }
+    else showToast(res?.message || 'Lỗi', 'error');
+}
+async function deleteUser(id) {
+    const ok = await showConfirm('Xoá người dùng', 'Bạn chắc chắn muốn xoá người dùng này?');
+    if (!ok) return;
+    const res = await adminFetch('/admin/users/api/' + id, { method: 'DELETE' });
+    if (res?.success) { showToast('Đã xoá', 'success'); document.getElementById('user-' + id)?.remove(); }
+    else showToast(res?.message || 'Lỗi', 'error');
+}
+</script>

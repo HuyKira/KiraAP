@@ -1,0 +1,50 @@
+<!-- TTS Page Content -->
+<div class="gen-container">
+    <div class="gen-form">
+        <textarea id="ttsText" class="gen-prompt gen-prompt-large" placeholder="Nhập văn bản cần chuyển thành giọng nói..." rows="6"></textarea>
+        <div class="gen-options">
+            <div class="voice-group" style="width: 100%;">
+                <div class="voice-subgroup" style="margin-bottom: 14px;">
+                    <span class="option-label" style="display: block; margin-bottom: 8px; font-weight: 600;"><i class="fas fa-venus" style="color: #e91e63;"></i> Giọng Nữ (Female):</span>
+                    <div class="voice-cards" style="gap:8px;">
+                        <button class="voice-card active" data-voice="alloy" data-sample="/assets/audio/samples/sample_alloy.wav" title="Giọng nữ miền Bắc tự nhiên, nhẹ nhàng, tốc độ vừa phải"><i class="fas fa-venus"></i> Alloy (Nữ MB) <i class="fas fa-volume-high play-sample-icon" style="font-size:0.75rem;margin-left:4px;opacity:0.7;"></i></button>
+                        <button class="voice-card" data-voice="fable" data-sample="/assets/audio/samples/sample_fable.wav" title="Giọng nữ miền Nam trẻ trung, ngọt ngào, dễ thương"><i class="fas fa-venus"></i> Fable (Nữ MN) <i class="fas fa-volume-high play-sample-icon" style="font-size:0.75rem;margin-left:4px;opacity:0.7;"></i></button>
+                        <button class="voice-card" data-voice="nova" data-sample="/assets/audio/samples/sample_nova.wav" title="Giọng nữ miền Bắc chuyên nghiệp, đọc truyện"><i class="fas fa-venus"></i> Nova (Nữ MB) <i class="fas fa-volume-high play-sample-icon" style="font-size:0.75rem;margin-left:4px;opacity:0.7;"></i></button>
+                        <button class="voice-card" data-voice="shimmer" data-sample="/assets/audio/samples/sample_shimmer.wav" title="Giọng nữ miền Bắc trong trẻo, năng động"><i class="fas fa-venus"></i> Shimmer (Nữ MB) <i class="fas fa-volume-high play-sample-icon" style="font-size:0.75rem;margin-left:4px;opacity:0.7;"></i></button>
+                        <button class="voice-card" data-voice="Kore" data-sample="/assets/audio/samples/sample_Kore.wav" title="Giọng nữ Gemini chuẩn, rõ ràng"><i class="fas fa-user-astronaut"></i> Kore (Gemini Nữ) <i class="fas fa-volume-high play-sample-icon" style="font-size:0.75rem;margin-left:4px;opacity:0.7;"></i></button>
+                        <button class="voice-card" data-voice="Aoede" data-sample="/assets/audio/samples/sample_Aoede.wav" title="Giọng nữ Gemini ấm áp, truyền cảm"><i class="fas fa-music"></i> Aoede (Gemini Nữ) <i class="fas fa-volume-high play-sample-icon" style="font-size:0.75rem;margin-left:4px;opacity:0.7;"></i></button>
+                    </div>
+                </div>
+                <div class="voice-subgroup">
+                    <span class="option-label" style="display: block; margin-bottom: 8px; font-weight: 600;"><i class="fas fa-mars" style="color: #2196f3;"></i> Giọng Nam (Male):</span>
+                    <div class="voice-cards" style="gap:8px;">
+                        <button class="voice-card" data-voice="echo" data-sample="/assets/audio/samples/sample_echo.wav" title="Giọng nam miền Bắc trầm ấm, rõ ràng, truyền cảm"><i class="fas fa-mars"></i> Echo (Nam MB) <i class="fas fa-volume-high play-sample-icon" style="font-size:0.75rem;margin-left:4px;opacity:0.7;"></i></button>
+                        <button class="voice-card" data-voice="onyx" data-sample="/assets/audio/samples/sample_onyx.wav" title="Giọng nam miền Nam dõng dạc, mạnh mẽ"><i class="fas fa-mars"></i> Onyx (Nam MN) <i class="fas fa-volume-high play-sample-icon" style="font-size:0.75rem;margin-left:4px;opacity:0.7;"></i></button>
+                        <button class="voice-card" data-voice="Puck" data-sample="/assets/audio/samples/sample_Puck.wav" title="Giọng nam Gemini trẻ trung, truyền cảm"><i class="fas fa-hat-wizard"></i> Puck (Gemini Nam) <i class="fas fa-volume-high play-sample-icon" style="font-size:0.75rem;margin-left:4px;opacity:0.7;"></i></button>
+                        <button class="voice-card" data-voice="Charon" data-sample="/assets/audio/samples/sample_Charon.wav" title="Giọng nam Gemini trầm ấm, quyền lực"><i class="fas fa-user-ninja"></i> Charon (Gemini Nam) <i class="fas fa-volume-high play-sample-icon" style="font-size:0.75rem;margin-left:4px;opacity:0.7;"></i></button>
+                        <button class="voice-card" data-voice="Fenrir" data-sample="/assets/audio/samples/sample_Fenrir.wav" title="Giọng nam Gemini dõng dạc, mạnh mẽ"><i class="fas fa-dragon"></i> Fenrir (Gemini Nam) <i class="fas fa-volume-high play-sample-icon" style="font-size:0.75rem;margin-left:4px;opacity:0.7;"></i></button>
+                    </div>
+                </div>
+            </div>
+            <button class="gen-submit-btn" id="ttsGenBtn"><i class="fas fa-volume-up"></i> Tạo giọng nói</button>
+        </div>
+    </div>
+    <div class="gen-results" id="ttsResults">
+        <!-- Dynamic audio players -->
+    </div>
+
+    <!-- TTS Audio Gallery Section -->
+    <div class="gen-gallery-section" id="ttsGallerySection">
+        <div class="gallery-header">
+            <h3 class="gallery-title"><i class="fas fa-headphones"></i> Bộ sưu tập giọng nói đã tạo</h3>
+            <button class="gallery-refresh-btn" id="refreshTTSGallery" title="Tải lại bộ sưu tập">
+                <i class="fas fa-sync-alt"></i> Tải lại
+            </button>
+        </div>
+        <div class="gallery-grid" id="ttsGalleryGrid">
+            <!-- Dynamic audio gallery cards -->
+        </div>
+    </div>
+</div>
+
+<script src="/js/ttsGen.js"></script>

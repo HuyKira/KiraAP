@@ -1,0 +1,51 @@
+<!-- API Keys Management Page -->
+<div class="gen-container" style="justify-content:flex-start;padding:30px 20px;">
+    <div style="width:100%;max-width:800px;margin:0 auto;">
+        <!-- Header -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+            <div>
+                <h3 style="font-size:1.15rem;color:var(--brown);margin-bottom:4px;">
+                    <i class="fas fa-key" style="color:var(--accent);margin-right:8px;"></i>API Keys
+                </h3>
+                <p style="font-size:.82rem;color:var(--brown3);">Tạo và quản lý API key để gọi Kira Agent Platform API</p>
+            </div>
+            <button class="gen-submit-btn" id="createKeyBtn" style="padding:10px 20px;">
+                <i class="fas fa-plus"></i> Tạo API key
+            </button>
+        </div>
+
+        <!-- Usage guide -->
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:24px;">
+            <h4 style="font-size:.88rem;color:var(--brown);margin-bottom:8px;"><i class="fas fa-book" style="color:var(--accent);margin-right:6px;"></i>Hướng dẫn sử dụng</h4>
+            <p style="font-size:.82rem;color:var(--brown3);line-height:1.6;margin-bottom:8px;">Sử dụng API key trong header <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;">Authorization: Bearer kira_sk_xxxxx</code></p>
+            <p style="font-size:.82rem;color:var(--brown3);line-height:1.6;">Base URL: <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;" id="baseUrl"></code></p>
+            <div style="margin-top:10px;">
+                <details style="font-size:.82rem;color:var(--brown3);">
+                    <summary style="cursor:pointer;color:var(--brown2);font-weight:500;">Ví dụ gọi API</summary>
+                    <pre style="background:var(--bg3);padding:12px;border-radius:8px;margin-top:8px;font-size:.78rem;overflow-x:auto;color:var(--brown);font-family:'JetBrains Mono',monospace;"><code>curl <span id="baseUrlExample"></span>/v1/chat/completions \
+  -H "Authorization: Bearer kira_sk_xxxxx" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemini-2.5-flash",
+    "messages": [
+      {"role": "user", "content": "Xin chào!"}
+    ]
+  }'</code></pre>
+                </details>
+            </div>
+        </div>
+
+        <!-- Key list -->
+        <div id="keyList" style="display:flex;flex-direction:column;gap:12px;">
+            <div class="gen-loading" id="keyLoading"><div class="spinner"></div></div>
+        </div>
+
+        <!-- Empty state -->
+        <div id="keyEmpty" style="display:none;text-align:center;padding:40px;color:var(--brown3);">
+            <i class="fas fa-key" style="font-size:2rem;opacity:0.3;margin-bottom:12px;display:block;"></i>
+            <p>Chưa có API key nào. Bấm "Tạo API key" để bắt đầu.</p>
+        </div>
+    </div>
+</div>
+
+<script src="/js/userApiKeys.js"></script>

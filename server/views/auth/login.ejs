@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kira Agent Platform Admin - Đăng nhập</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/admin.css">
+    <style>
+        .login-page { display:flex; height:100vh; background:#0F0A07; font-family:'Be Vietnam Pro',sans-serif; }
+        .login-left { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; background:linear-gradient(135deg,#2A1A12 0%,#1A110D 50%,#E8740C 150%); position:relative; overflow:hidden; }
+        .login-left::before { content:''; position:absolute; width:300px; height:300px; border-radius:50%; background:rgba(232,116,12,0.15); top:-50px; right:-50px; }
+        .login-left::after { content:''; position:absolute; width:200px; height:200px; border-radius:50%; background:rgba(245,166,35,0.1); bottom:50px; left:-30px; }
+        .login-logo { font-size:2.2rem; font-weight:700; color:#F0E6D8; z-index:1; text-align:center; }
+        .login-logo span { color:#E8740C; }
+        .login-logo-sub { font-size:1rem; color:#B8A08C; margin-top:4px; }
+        .login-tagline { color:#B8A08C; margin-top:12px; font-size:1.1rem; z-index:1; }
+        .login-right { flex:1; display:flex; align-items:center; justify-content:center; }
+        .login-form { width:100%; max-width:380px; padding:40px; }
+        .login-form h2 { color:#F0E6D8; font-size:1.5rem; margin-bottom:32px; text-align:center; }
+        .form-group { margin-bottom:20px; }
+        .form-group label { display:block; color:#B8A08C; font-size:0.85rem; margin-bottom:6px; }
+        .form-group input { width:100%; padding:12px 16px; background:#1A110D; border:1px solid rgba(232,116,12,0.2); border-radius:8px; color:#F0E6D8; font-size:0.95rem; font-family:'Be Vietnam Pro',sans-serif; outline:none; box-sizing:border-box; transition:border-color .2s; }
+        .form-group input:focus { border-color:#E8740C; }
+        .form-group input::placeholder { color:#6B4226; }
+        .login-btn { width:100%; padding:14px; background:linear-gradient(135deg,#E8740C,#F5A623); border:none; border-radius:8px; color:#fff; font-size:1rem; font-weight:600; cursor:pointer; font-family:'Be Vietnam Pro',sans-serif; transition:transform .2s,box-shadow .2s; }
+        .login-btn:hover { transform:scale(1.02); box-shadow:0 4px 20px rgba(232,116,12,0.4); }
+        .login-btn:active { transform:scale(0.98); }
+        .login-error { color:#f87171; font-size:0.85rem; margin-top:12px; text-align:center; display:none; }
+        @media(max-width:768px) { .login-left { display:none; } .login-right { flex:1; } }
+    </style>
+</head>
+<body>
+    <div class="login-page">
+        <div class="login-left">
+            <div class="login-logo">Kira <span>Agent Platform</span></div>
+            <p class="login-tagline">Nền tảng AI thông minh</p>
+        </div>
+        <div class="login-right">
+            <form class="login-form" id="loginForm">
+                <h2>Đăng nhập quản trị</h2>
+                <div class="form-group">
+                    <label>Tên đăng nhập hoặc Email</label>
+                    <input type="text" id="loginEmail" placeholder="admin hoặc admin@kiraap.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Mật khẩu</label>
+                    <input type="password" id="loginPassword" placeholder="••••••" required>
+                </div>
+                <button type="submit" class="login-btn" id="loginBtn">Đăng nhập</button>
+                <p class="login-error" id="loginError"></p>
+            </form>
+        </div>
+    </div>
+    <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('loginBtn');
+        const errorEl = document.getElementById('loginError');
+        btn.textContent = 'Đang đăng nhập...';
+        btn.disabled = true;
+        errorEl.style.display = 'none';
+
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: document.getElementById('loginEmail').value,
+                    password: document.getElementById('loginPassword').value
+                })
+            });
+            const data = await res.json();
+
+            if (data.success && data.data.user.role === 'admin') {
+                localStorage.setItem('kiraap_admin_token', data.data.token);
+                document.cookie = 'token=' + data.data.token + '; path=/; max-age=' + (7 * 24 * 60 * 60);
+                window.location.href = '/admin';
+            } else if (data.success && data.data.user.role !== 'admin') {
+                errorEl.textContent = 'Tài khoản không có quyền quản trị';
+                errorEl.style.display = 'block';
+            } else {
+                errorEl.textContent = data.message || 'Đăng nhập thất bại';
+                errorEl.style.display = 'block';
+            }
+        } catch (err) {
+            errorEl.textContent = 'Lỗi kết nối server';
+            errorEl.style.display = 'block';
+        }
+
+        btn.textContent = 'Đăng nhập';
+        btn.disabled = false;
+    });
+    </script>
+</body>
+</html>

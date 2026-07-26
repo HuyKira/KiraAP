@@ -1,0 +1,14 @@
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Be Vietnam Pro',sans-serif;background:var(--bg);color:var(--brown);font-size:15px;line-height:1.6;}
+h1,h2,h3,h4{font-weight:600;color:var(--brown);}
+a{color:var(--accent);text-decoration:none;}
+a:hover{color:var(--accent2);}
+code{font-family:'JetBrains Mono',monospace;background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:0.88em;}
+pre{background:#2A1A12;color:#F0E6D8;padding:16px;border-radius:8px;overflow-x:auto;margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:0.85em;line-height:1.5;}
+pre code{background:none;padding:0;color:inherit;}
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--brown3);}
+::selection{background:rgba(232,116,12,0.2);color:var(--brown);}

@@ -1,0 +1,12 @@
+node_modules/
+.env
+scratch/
+public/uploads/images/*
+public/uploads/videos/*
+public/uploads/audios/*
+public/uploads/temp/*
+!public/uploads/images/.gitkeep
+!public/uploads/videos/.gitkeep
+!public/uploads/audios/.gitkeep
+!public/uploads/temp/.gitkeep
+.DS_Store
