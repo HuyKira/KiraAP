@@ -21,19 +21,30 @@ Các request gọi đến Agent Flatform của Google sử dụng cơ chế xác
    `https://aiplatform.googleapis.com/v1/publishers/google/models/{MODEL}:generateContent?key={API_KEY}`
    - *Lưu ý*: Đối với stream văn bản, đổi `:generateContent` thành `:streamGenerateContent?alt=sse&key={API_KEY}`.
 
-2. **API tạo video (Bất đồng bộ - LRO)**:
+2. **API tạo video Veo (Bất đồng bộ - LRO)**:
    - **Khởi tạo tiến trình**:
      `https://us-central1-aiplatform.googleapis.com/v1/projects/{PROJECT_NUMBER}/locations/us-central1/publishers/google/models/{MODEL}:predictLongRunning?key={API_KEY}`
    - **Truy vấn trạng thái tiến trình**:
      `https://us-central1-aiplatform.googleapis.com/v1/projects/{PROJECT_NUMBER}/locations/us-central1/publishers/google/models/{MODEL}:fetchPredictOperation?key={API_KEY}`
+   - *Quy định thời lượng (durationSeconds)*:
+     - `veo-3.1-lite-generate-001` & `veo-3.0-generate-001`: hỗ trợ `[4, 6, 8]` giây.
+     - `veo-2.0-generate-001`: hỗ trợ `[5, 6, 7, 8]` giây.
+
+3. **API tạo & chỉnh sửa video Gemini Omni (Interactions API)**:
+   - **Endpoint**:
+     `https://aiplatform.googleapis.com/v1beta1/projects/{PROJECT_NUMBER}/locations/global/interactions`
+   - Header: `Authorization: Bearer {API_KEY}`
+   - Model: `gemini-omni-flash-preview`
 
 - **Models mặc định**:
-  - Chat/Text: `gemini-3-flash-preview`
-  - Image: `gemini-3.1-flash-image-preview`
+  - Chat/Text: `gemini-3.6-flash`
+  - Image: `gemini-3.1-flash-image`
   - Video: `veo-3.1-lite-generate-001`
+  - Video Omni / Edit: `gemini-omni-flash-preview`
   - Voice/TTS: `gemini-3.1-flash-tts-preview`
-  - *Lưu ý*: Các model ID này nên được cấu hình thông qua biến môi trường (`.env` hoặc tương đương) hoặc cấu hình động từ cơ sở dữ liệu của dự án.
-- **Giọng đọc mặc định (TTS Voice)**: Puck (có sẵn các giọng đọc khác như Charon, Kore, Fenrir, Aoede).
+- **Danh sách 11 Giọng đọc TTS (Voice Names)**:
+  - **Nữ**: `Alloy`, `Fable`, `Nova`, `Shimmer`, `Kore`, `Aoede`
+  - **Nam**: `Echo`, `Onyx`, `Puck`, `Charon`, `Fenrir`
 
 ---
 
@@ -296,10 +307,37 @@ async function callAgentFlatformTTS(apiKey, prompt, options = {}) {
     const audioPart = data.candidates?.[0]?.content?.parts?.[0]?.inlineData;
     if (!audioPart || !audioPart.data) {
         throw new Error('AI response did not contain valid audio data.');
-    }
+    // Lưu ý: Gemini TTS trả về dữ liệu âm thanh PCM 24kHz raw (base64)
+    // Để phát được trên trình duyệt hoặc lưu thành file .wav, cần gắn thêm 44-byte WAV Header:
+    const pcmBuffer = Buffer.from(audioPart.data, 'base64');
+    const wavBuffer = addWavHeader(pcmBuffer, 24000, 1, 16);
+    return `data:audio/wav;base64,${wavBuffer.toString('base64')}`;
+}
 
-    const mimeType = audioPart.mimeType || 'audio/mp3';
-    return `data:${mimeType};base64,${audioPart.data}`;
+/**
+ * Thêm 44-byte RIFF WAV Header cho PCM buffer
+ */
+function addWavHeader(pcmBuffer, sampleRate = 24000, numChannels = 1, bitsPerSample = 16) {
+    const header = Buffer.alloc(44);
+    const dataSize = pcmBuffer.length;
+    const byteRate = (sampleRate * numChannels * bitsPerSample) / 8;
+    const blockAlign = (numChannels * bitsPerSample) / 8;
+
+    header.write('RIFF', 0);
+    header.writeUInt32LE(36 + dataSize, 4);
+    header.write('WAVE', 8);
+    header.write('fmt ', 12);
+    header.writeUInt32LE(16, 16);
+    header.writeUInt16LE(1, 20);
+    header.writeUInt16LE(numChannels, 22);
+    header.writeUInt32LE(sampleRate, 24);
+    header.writeUInt32LE(byteRate, 28);
+    header.writeUInt16LE(blockAlign, 32);
+    header.writeUInt16LE(bitsPerSample, 34);
+    header.write('data', 36);
+    header.writeUInt32LE(dataSize, 40);
+
+    return Buffer.concat([header, pcmBuffer]);
 }
 ```
 
