@@ -133,41 +133,74 @@ router.post('/chat/completions', async (req, res) => {
                     user: req.user
                 });
 
-                const reader = apiResponse.body.getReader();
-                const decoder = new TextDecoder();
+                const stream = apiResponse.stream;
+                const reader = stream.getReader ? stream.getReader() : null;
                 let buffer = '';
 
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
+                if (reader) {
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
 
-                    buffer += decoder.decode(value, { stream: true });
-                    const lines = buffer.split('\n');
-                    buffer = lines.pop();
+                        buffer += new TextDecoder().decode(value, { stream: true });
+                        const lines = buffer.split('\n');
+                        buffer = lines.pop();
 
-                    for (const line of lines) {
-                        if (!line.startsWith('data: ')) continue;
-                        const jsonStr = line.slice(6).trim();
-                        if (!jsonStr) continue;
+                        for (const line of lines) {
+                            if (!line.startsWith('data: ')) continue;
+                            const jsonStr = line.slice(6).trim();
+                            if (!jsonStr) continue;
 
-                        try {
-                            const parsed = JSON.parse(jsonStr);
-                            const text = parsed.candidates?.[0]?.content?.parts?.[0]?.text || '';
-                            if (text) {
-                                const chunk = {
-                                    id: chatId,
-                                    object: 'chat.completion.chunk',
-                                    created,
-                                    model: model || 'gemini-2.5-flash',
-                                    choices: [{
-                                        index: 0,
-                                        delta: { content: text },
-                                        finish_reason: null
-                                    }]
-                                };
-                                res.write(`data: ${JSON.stringify(chunk)}\n\n`);
-                            }
-                        } catch (e) { /* skip invalid JSON */ }
+                            try {
+                                const parsed = JSON.parse(jsonStr);
+                                const text = parsed.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                                if (text) {
+                                    const chunk = {
+                                        id: chatId,
+                                        object: 'chat.completion.chunk',
+                                        created,
+                                        model: apiResponse.modelUsed || model || 'gemini-3.6-flash',
+                                        choices: [{
+                                            index: 0,
+                                            delta: { content: text },
+                                            finish_reason: null
+                                        }]
+                                    };
+                                    res.write(`data: ${JSON.stringify(chunk)}\n\n`);
+                                }
+                            } catch (e) { /* skip invalid JSON */ }
+                        }
+                    }
+                } else if (stream && typeof stream.on === 'function') {
+                    for await (const chunk of stream) {
+                        buffer += chunk.toString('utf8');
+                        const lines = buffer.split('\n');
+                        buffer = lines.pop();
+
+                        for (const line of lines) {
+                            if (!line.startsWith('data: ')) continue;
+                            const jsonStr = line.slice(6).trim();
+                            if (!jsonStr) continue;
+
+                            try {
+                                const parsed = JSON.parse(jsonStr);
+                                const text = parsed.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                                if (text) {
+                                    const chunkObj = {
+                                        id: chatId,
+                                        object: 'chat.completion.chunk',
+                                        created,
+                                        model: apiResponse.modelUsed || model || 'gemini-3.6-flash',
+                                        choices: [{
+                                            index: 0,
+                                            delta: { content: text },
+                                            finish_reason: null
+                                        }]
+                                    };
+                                    res.write(`data: ${JSON.stringify(chunkObj)}\n\n`);
+                                }
+                            } catch (e) { /* skip invalid JSON */ }
+                        }
                     }
                 }
 
