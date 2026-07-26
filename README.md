@@ -179,6 +179,7 @@ Sau khi khởi chạy thành công:
 
 1. **Khóa API (API Key)**: Lấy khóa API Google Gemini / Vertex AI từ Google Cloud Console hoặc Google AI Studio.
 2. **Số dự án (Project Number)**: Lấy số ID định danh dự án Google Cloud (Project Number dạng chuỗi số, ví dụ `95796309409`) từ Google Cloud Console. Trường này là bắt buộc để sử dụng các mô hình Video Veo và Gemini Omni.
+3. **Hướng dẫn chi tiết lấy API Key**: Xem chi tiết tại bài viết [Hướng dẫn sử dụng $300 API Gemini miễn phí qua Agent Platform của Google](https://kiraai.vn/tin-tuc/su-dung-300-usd-api-gemini-mien-phi-qua-agent-platform-cua-google/).
 
 ---
 
