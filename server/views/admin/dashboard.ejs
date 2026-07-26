@@ -35,14 +35,16 @@
     <div class="charts-row">
         <div class="chart-card">
             <h3>Sử dụng API theo thời gian</h3>
-            <canvas id="usageChart" height="250"></canvas>
+            <div style="position:relative; height:200px;">
+                <canvas id="usageChart"></canvas>
+            </div>
         </div>
         <div class="chart-card chart-small">
             <h3>Top mô hình phổ biến</h3>
             <div class="model-bars">
                 <% topModels.forEach(function(m) { %>
-                <div class="model-bar-item">
-                    <span class="model-name"><%= m._id %></span>
+                <div class="model-bar-item" title="<%= m._id %>">
+                    <span class="model-name" title="<%= m._id %>"><%= m._id %></span>
                     <div class="model-bar-track">
                         <div class="model-bar-fill" style="width:<%= topModels[0].count > 0 ? (m.count / topModels[0].count * 100) : 0 %>%"></div>
                     </div>
@@ -83,10 +85,15 @@
 // Usage chart
 const chartData = <%- JSON.stringify(chartData) %>;
 if (chartData.length > 0) {
+    const maxCount = Math.max(...chartData.map(d => d.count));
+    const stepSize = maxCount <= 10 ? 1 : maxCount <= 50 ? 5 : Math.ceil(maxCount / 10);
     new Chart(document.getElementById('usageChart'), {
         type: 'line',
         data: {
-            labels: chartData.map(d => { const dt = new Date(d._id); return dt.getDate() + '/' + (dt.getMonth()+1); }),
+            labels: chartData.map(d => {
+                const dt = new Date(d._id);
+                return dt.getDate().toString().padStart(2, '0') + '/' + (dt.getMonth()+1).toString().padStart(2, '0');
+            }),
             datasets: [{
                 label: 'Số yêu cầu',
                 data: chartData.map(d => d.count),
@@ -94,16 +101,56 @@ if (chartData.length > 0) {
                 backgroundColor: 'rgba(232,116,12,0.1)',
                 fill: true,
                 tension: 0.4,
-                pointRadius: 4,
-                pointBackgroundColor: '#F5A623'
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                pointBackgroundColor: '#F5A623',
+                borderWidth: 2
             }]
         },
         options: {
             responsive: true,
-            plugins: { legend: { labels: { color: '#B8A08C' } } },
+            maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
+            plugins: {
+                legend: { labels: { color: '#B8A08C', font: { size: 12 } } },
+                tooltip: {
+                    backgroundColor: 'rgba(30,20,10,0.9)',
+                    titleColor: '#F5A623',
+                    bodyColor: '#E8D5C0',
+                    borderColor: 'rgba(232,116,12,0.3)',
+                    borderWidth: 1,
+                    padding: 10,
+                    cornerRadius: 8,
+                    callbacks: {
+                        title: function(items) {
+                            const d = chartData[items[0].dataIndex];
+                            const dt = new Date(d._id);
+                            return dt.toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+                        },
+                        label: function(item) {
+                            return ' ' + item.parsed.y.toLocaleString('vi-VN') + ' yêu cầu';
+                        }
+                    }
+                }
+            },
             scales: {
-                x: { ticks: { color: '#B8A08C' }, grid: { color: 'rgba(232,116,12,0.1)' } },
-                y: { ticks: { color: '#B8A08C' }, grid: { color: 'rgba(232,116,12,0.1)' } }
+                x: {
+                    ticks: { color: '#B8A08C', font: { size: 11 } },
+                    grid: { color: 'rgba(232,116,12,0.08)' }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: '#B8A08C',
+                        font: { size: 11 },
+                        stepSize: stepSize,
+                        callback: function(value) { if (Number.isInteger(value)) return value; }
+                    },
+                    grid: { color: 'rgba(232,116,12,0.08)' }
+                }
             }
         }
     });

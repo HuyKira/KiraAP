@@ -102,9 +102,9 @@ body.admin-body {
 .chart-card { background:var(--admin-bg2); border:1px solid var(--admin-border); border-radius:var(--radius); padding:20px; }
 .chart-card h3 { font-size:0.95rem; font-weight:600; margin-bottom:16px; color:var(--text); }
 .model-bars { display:flex; flex-direction:column; gap:12px; }
-.model-bar-item { display:flex; align-items:center; gap:10px; }
-.model-name { font-size:0.8rem; color:var(--text2); width:100px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; }
-.model-bar-track { flex:1; height:8px; background:var(--admin-bg3); border-radius:4px; overflow:hidden; }
+.model-bar-item { display:flex; align-items:center; gap:10px; cursor:default; }
+.model-name { font-size:0.78rem; color:var(--text2); width:160px; min-width:160px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; }
+.model-bar-track { flex:1; height:10px; background:var(--admin-bg3); border-radius:5px; overflow:hidden; }
 .model-bar-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent-light)); border-radius:4px; transition:width 0.6s ease; }
 .model-count { font-size:0.8rem; color:var(--text2); min-width:40px; text-align:right; }
 

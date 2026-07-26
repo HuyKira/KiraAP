@@ -10,6 +10,26 @@
 
 ---
 
+## Demo giao diện
+
+### 💬 Trò chuyện AI (AI Chat)
+
+![Trò chuyện AI](docs/screenshots/chat.jpg)
+
+### 🎨 Tạo hình ảnh AI (Image Generation)
+
+![Tạo hình ảnh AI](docs/screenshots/image-gen.jpg)
+
+### 📊 Trang quản trị - Tổng quan (Admin Dashboard)
+
+![Admin Dashboard](docs/screenshots/admin-dashboard.jpg)
+
+### ⚙️ Quản lý mô hình AI (AI Models Management)
+
+![Quản lý mô hình AI](docs/screenshots/admin-models.jpg)
+
+---
+
 ## Giới thiệu tổng quan
 
 **Kira Agent Platform (KiraAP)** là giải pháp Web Application mạnh mẽ, giúp cá nhân và doanh nghiệp dễ dàng triển khai hệ sinh thái AI riêng cho người dùng end-user mà không cần phụ thuộc vào dịch vụ bên thứ ba. Dự án tích hợp các mô hình AI tiên tiến nhất của Google như **Gemini 3.6 Flash**, **Gemini 3.1 Pro**, **Gemini 3.1 Flash Image**, **Google Veo 3.1 Lite (Video)** và **Gemini 3.1 Flash TTS (Giọng nói)**.
@@ -52,12 +72,14 @@ Nền tảng hỗ trợ xoay vòng API Key thông minh (API Key Load Balancing &
 
 ## Công nghệ sử dụng
 
-- **Backend**: Node.js, Express.js.
-- **Database**: MongoDB (sử dụng Mongoose ORM).
-- **Authentication**: JWT (JSON Web Token), Mã hóa mật khẩu với bcryptjs.
-- **Frontend**: HTML5, Vanilla CSS3 (Custom Design System, Dark Mode, Responsive), JavaScript ES6+.
-- **Template Engine**: EJS (Embedded JavaScript templates).
-- **AI Infrastructure**: REST / Interactions HTTP APIs của Google Agent Flatform & Vertex AI.
+| Thành phần | Công nghệ |
+|---|---|
+| Backend | Node.js, Express.js |
+| Database | MongoDB (Mongoose ORM) |
+| Authentication | JWT, bcryptjs |
+| Frontend | HTML5, Vanilla CSS3 (Dark Mode, Responsive), JavaScript ES6+ |
+| Template Engine | EJS |
+| AI Infrastructure | REST / Interactions HTTP APIs - Google Agent Flatform & Vertex AI |
 
 ---
 
@@ -79,6 +101,8 @@ KiraAP/
 │   ├── css/             # Stylesheet (CSS Variables, Base, Components, Sidebar...)
 │   ├── js/              # Logic frontend (App, Auth, Chat, ImageGen, VideoGen, TTS...)
 │   └── uploads/         # Thư mục lưu trữ media phát sinh (Images, Videos, Audios)
+├── docs/
+│   └── screenshots/     # Ảnh demo giao diện
 ├── .env.example         # Template cấu hình biến môi trường
 ├── package.json         # Danh sách thư viện và script npm
 ├── README.md            # Hướng dẫn dự án
@@ -95,7 +119,7 @@ KiraAP/
 
 ### 2. Tải mã nguồn về máy
 ```bash
-git clone https://github.com/USERNAME/KiraAP.git
+git clone https://github.com/HuyKira/KiraAP.git
 cd KiraAP
 ```
 
@@ -181,10 +205,10 @@ Dự án **Kira Agent Platform** hoan nghênh mọi sự đóng góp từ cộng
 
 ## Giấy phép (License)
 
-Dự án được phân phối theo giấy phép mã nguồn mở **MIT License**. Chi tiết xem tại file [LICENSE](file:///Users/huykira/HUYKIRA/KiraAP/LICENSE).
+Dự án được phân phối theo giấy phép mã nguồn mở **MIT License**. Chi tiết xem tại file [LICENSE](LICENSE).
 
 ---
 
 <p align="center">
-  Được phát triển với ❤️ bởi <b>Huy Kira</b> và cộng đồng mã nguồn mở.
+  Được phát triển với ❤️ bởi <a href="https://github.com/HuyKira"><b>Huy Kira</b></a> và cộng đồng mã nguồn mở.
 </p>
