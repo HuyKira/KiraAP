@@ -22,7 +22,7 @@
                 <span class="logo-text">Kira Agent Platform</span>
             </div>
             <button class="sidebar-toggle" id="sidebarToggle">
-                <i class="fas fa-bars"></i>
+                <i class="fas fa-times"></i>
             </button>
         </div>
 
@@ -160,6 +160,10 @@
     // Sidebar toggle
     document.getElementById('mobileToggle')?.addEventListener('click', () => {
         document.getElementById('adminSidebar').classList.toggle('show');
+    });
+
+    document.getElementById('sidebarToggle')?.addEventListener('click', () => {
+        document.getElementById('adminSidebar').classList.remove('show');
     });
 
     // Logout

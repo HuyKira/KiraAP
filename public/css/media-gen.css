@@ -243,3 +243,86 @@
     margin-bottom: 8px;
     opacity: 0.5;
 }
+
+/* Responsive for Mobile */
+@media (max-width: 768px) {
+    .gen-container {
+        padding: 16px;
+        gap: 16px;
+    }
+
+    .gen-options {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 16px !important;
+    }
+
+    .aspect-ratio-group, 
+    .count-group, 
+    .duration-group {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        width: 100% !important;
+        gap: 8px !important;
+    }
+
+    .aspect-ratio-group .option-label,
+    .count-group .option-label,
+    .duration-group .option-label {
+        width: 100% !important;
+        margin-bottom: 2px !important;
+        display: block !important;
+    }
+
+    .aspect-ratio-group .aspect-btn {
+        flex: 1 1 calc(20% - 8px);
+        min-width: 60px;
+        text-align: center;
+        padding: 8px 6px !important;
+        font-size: 0.8rem !important;
+    }
+
+    .count-group .count-btn {
+        flex: 1 1 calc(25% - 8px);
+        min-width: 70px;
+        text-align: center;
+        padding: 8px 6px !important;
+        font-size: 0.8rem !important;
+    }
+
+    .duration-group .duration-btn {
+        flex: 1 1 calc(25% - 8px);
+        min-width: 70px;
+        text-align: center;
+        padding: 8px 6px !important;
+        font-size: 0.8rem !important;
+    }
+
+    .gen-submit-btn {
+        width: 100% !important;
+        justify-content: center !important;
+        margin-top: 8px !important;
+        padding: 12px 20px !important;
+        font-size: 0.95rem !important;
+    }
+
+    .voice-cards {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+
+    .voice-card {
+        flex: 1 1 calc(50% - 4px) !important;
+        justify-content: center !important;
+        box-sizing: border-box !important;
+        padding: 8px 4px !important;
+        font-size: 0.72rem !important;
+    }
+
+    .voice-card .play-sample-icon {
+        font-size: 0.65rem !important;
+        margin-left: 2px !important;
+    }
+}
+

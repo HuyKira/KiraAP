@@ -15,13 +15,7 @@ router.get('/', async (req, res) => {
             .sort({ createdAt: -1 })
             .lean();
 
-        // Mask key trước khi trả
-        const maskedKeys = keys.map(k => ({
-            ...k,
-            key: 'kira_sk_••••••••' + k.key.slice(-4)
-        }));
-
-        res.json({ success: true, data: maskedKeys });
+        res.json({ success: true, data: keys });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

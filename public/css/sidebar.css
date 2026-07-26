@@ -404,4 +404,26 @@
     .hamburger {
         display: block;
     }
+
+    .topbar-title {
+        display: none;
+    }
+
+    .topbar-right {
+        margin-left: auto;
+        min-width: 0;
+        gap: 8px;
+    }
+
+    .model-select-box {
+        max-width: 240px;
+        min-width: 0;
+        padding: 6px 8px;
+    }
+
+    .model-select-box select {
+        width: 100%;
+        min-width: 0;
+        text-overflow: ellipsis;
+    }
 }

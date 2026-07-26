@@ -41,7 +41,7 @@ async function loadKeys() {
             <div class="api-key-card" data-id="${k._id}">
                 <div class="api-key-info">
                     <div class="api-key-name">${escapeHtml(k.name)}</div>
-                    <div class="api-key-value"><code>${k.key}</code></div>
+                    <div class="api-key-value"><code>${maskKey(k.key)}</code></div>
                     <div class="api-key-meta">
                         <span><i class="fas fa-chart-bar"></i> ${k.usageCount || 0} lượt gọi</span>
                         <span><i class="fas fa-clock"></i> ${k.lastUsedAt ? timeAgo(k.lastUsedAt) : 'Chưa sử dụng'}</span>
@@ -49,6 +49,9 @@ async function loadKeys() {
                     </div>
                 </div>
                 <div class="api-key-actions">
+                    <button class="api-key-copy" onclick="copyToClipboard('${k.key}')" title="Sao chép">
+                        <i class="fas fa-copy"></i>
+                    </button>
                     <button class="api-key-delete" onclick="deleteKey('${k._id}')" title="Xoá">
                         <i class="fas fa-trash"></i>
                     </button>
@@ -160,4 +163,33 @@ function timeAgo(date) {
     if (seconds < 3600) return Math.floor(seconds / 60) + ' phút trước';
     if (seconds < 86400) return Math.floor(seconds / 3600) + ' giờ trước';
     return Math.floor(seconds / 86400) + ' ngày trước';
+}
+
+function copyToClipboard(text) {
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+            showToast('Đã sao chép API key', 'success');
+        }).catch(err => {
+            showToast('Không thể sao chép API key', 'error');
+        });
+    } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand('copy');
+            showToast('Đã sao chép API key', 'success');
+        } catch (err) {
+            showToast('Không thể sao chép API key', 'error');
+        }
+        document.body.removeChild(textarea);
+    }
+}
+
+function maskKey(key) {
+    if (!key) return '';
+    if (key.startsWith('kira_sk_••••••••')) return key;
+    return 'kira_sk_••••••••' + key.slice(-4);
 }

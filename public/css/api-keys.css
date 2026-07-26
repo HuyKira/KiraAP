@@ -82,3 +82,24 @@
     background: rgba(220, 38, 38, 0.08);
     color: var(--error);
 }
+
+.api-key-copy {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--brown3);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .85rem;
+    transition: var(--transition);
+}
+
+.api-key-copy:hover {
+    background: rgba(232, 116, 12, 0.08);
+    color: var(--accent);
+}
+

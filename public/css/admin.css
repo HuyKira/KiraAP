@@ -127,8 +127,8 @@ body.admin-body {
 /* === DATA TABLE === */
 .data-table-wrap { overflow-x:auto; }
 .data-table { width:100%; border-collapse:collapse; }
-.data-table th { padding:12px 16px; text-align:left; font-size:0.8rem; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:0.5px; border-bottom:1px solid var(--admin-border); }
-.data-table td { padding:12px 16px; font-size:0.88rem; border-bottom:1px solid var(--admin-border); }
+.data-table th { padding:12px 16px; text-align:left; font-size:0.8rem; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:0.5px; border-bottom:1px solid var(--admin-border); white-space:nowrap; }
+.data-table td { padding:12px 16px; font-size:0.88rem; border-bottom:1px solid var(--admin-border); white-space:nowrap; }
 .data-table tr:hover td { background:var(--admin-surface); }
 .data-table code { background:var(--admin-bg3); padding:2px 8px; border-radius:4px; font-size:0.82rem; font-family:'JetBrains Mono',monospace; }
 .actions { display:flex; gap:6px; }
@@ -229,9 +229,54 @@ body.admin-body {
     .charts-row { grid-template-columns:1fr; }
 }
 @media (max-width: 768px) {
-    .admin-sidebar { position:fixed; left:-var(--sidebar-w); }
+    .admin-sidebar { position:fixed; left: calc(-1 * var(--sidebar-w)); }
     .admin-sidebar.show { left:0; box-shadow:0 0 30px rgba(0,0,0,0.5); }
     .mobile-toggle { display:block; }
+    .sidebar-toggle { display:block; }
     .stat-cards { grid-template-columns:1fr 1fr; }
     .media-grid { grid-template-columns:repeat(2,1fr); }
+
+    /* Không ngắt dòng tiêu đề trang và nút thêm */
+    .admin-page-header {
+        flex-wrap: nowrap !important;
+        gap: 8px !important;
+    }
+    .admin-page-header h2 {
+        white-space: nowrap !important;
+        font-size: 1rem !important;
+    }
+    .admin-page-header .btn {
+        padding: 8px 12px !important;
+        font-size: 0.8rem !important;
+        white-space: nowrap !important;
+    }
+
+    /* Thể loại: 2 item trên 1 hàng */
+    .model-tabs {
+        width: 100% !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+        box-sizing: border-box !important;
+        background: var(--admin-bg2) !important;
+        padding: 4px !important;
+    }
+    .model-tabs .tab-btn {
+        flex: 1 1 calc(50% - 3px) !important;
+        padding: 8px 4px !important;
+        text-align: center !important;
+        font-size: 0.8rem !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Bảng dữ liệu: không bao giờ rớt dòng, cho cuộn ngang mượt mà */
+    .data-table-wrap {
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+    .data-table th, 
+    .data-table td {
+        white-space: nowrap !important;
+    }
 }
