@@ -1,0 +1,759 @@
+<div class="docs-container">
+    <!-- Hero -->
+    <div class="docs-hero">
+        <h1><i class="fas fa-book-open"></i> Tài liệu API</h1>
+        <p>KiraAP cung cấp Proxy API tương thích OpenAI. Bạn có thể gọi API từ bất kỳ ngôn ngữ lập trình nào bằng API Key cá nhân.</p>
+        <div class="base-url-box">
+            <span id="baseUrlText">https://your-domain.com/v1</span>
+            <button class="copy-btn" onclick="copyBaseUrl()" title="Sao chép"><i class="fas fa-copy"></i></button>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="docs-nav">
+        <ul class="docs-nav-list">
+            <li><a href="#auth" class="active">Xác thực</a></li>
+            <li><a href="#models">Models</a></li>
+            <li><a href="#chat">Chat</a></li>
+            <li><a href="#images">Tạo ảnh</a></li>
+            <li><a href="#tts">Giọng nói</a></li>
+            <li><a href="#user">User</a></li>
+        </ul>
+    </nav>
+
+    <!-- ==================== XÁC THỰC ==================== -->
+    <section class="docs-section" id="auth">
+        <h2><i class="fas fa-shield-halved"></i> Xác thực (Authentication)</h2>
+        <p>Tất cả API endpoints yêu cầu xác thực bằng API Key cá nhân. Key được truyền qua header <code>Authorization</code>.</p>
+
+        <ol class="auth-steps">
+            <li>Đăng nhập vào KiraAP và mở menu <strong>API Keys</strong> trên sidebar.</li>
+            <li>Nhấn <strong>"Tạo API Key mới"</strong>, đặt tên và sao chép key (dạng <code>kira_sk_xxxxxxxx</code>).</li>
+            <li>Thêm header vào mọi request: <code>Authorization: Bearer kira_sk_xxxxx</code></li>
+        </ol>
+
+        <div class="info-box">
+            <i class="fas fa-circle-info"></i>
+            <span>API Key chỉ hiển thị đầy đủ <strong>1 lần duy nhất</strong> khi tạo. Hãy lưu lại cẩn thận. Nếu mất, bạn cần tạo key mới.</span>
+        </div>
+
+        <div class="info-box warning-box">
+            <i class="fas fa-triangle-exclamation"></i>
+            <span><strong>Bảo mật:</strong> Không chia sẻ API Key công khai hoặc commit vào source code. Sử dụng biến môi trường (env) để lưu trữ.</span>
+        </div>
+    </section>
+
+    <!-- ==================== MODELS ==================== -->
+    <section class="docs-section" id="models">
+        <h2><i class="fas fa-microchip"></i> Models</h2>
+
+        <div class="endpoint-card">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="endpoint-method method-get">GET</span>
+                <span class="endpoint-path">/v1/models</span>
+                <span class="endpoint-desc">Danh sách tất cả model khả dụng</span>
+                <i class="fas fa-chevron-down endpoint-toggle"></i>
+            </div>
+            <div class="endpoint-body">
+                <p>Trả về danh sách các mô hình AI đang hoạt động. Hỗ trợ lọc theo danh mục.</p>
+
+                <h3>Tham số (Query)</h3>
+                <table class="params-table">
+                    <thead><tr><th>Tham số</th><th>Kiểu</th><th>Mô tả</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><code>category</code></td>
+                            <td>string</td>
+                            <td><span class="param-optional">Tuỳ chọn</span> — Lọc theo danh mục: <code>text</code>, <code>image</code>, <code>video</code>, <code>tts</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="code-tabs" data-group="models-list">
+                    <div class="code-tab-buttons">
+                        <button class="code-tab-btn active" onclick="switchTab(this, 'curl')">cURL</button>
+                        <button class="code-tab-btn" onclick="switchTab(this, 'javascript')">JavaScript</button>
+                        <button class="code-tab-btn" onclick="switchTab(this, 'python')">Python</button>
+                        <button class="code-tab-btn" onclick="switchTab(this, 'php')">PHP</button>
+                    </div>
+                    <div class="code-tab-panel active" data-lang="curl">
+                        <button class="copy-code-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
+                        <pre>curl -X GET "https://your-domain.com/v1/models?category=text" \
+  -H "Authorization: Bearer kira_sk_xxxxx"</pre>
+                    </div>
+                    <div class="code-tab-panel" data-lang="javascript">
+                        <button class="copy-code-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
+                        <pre>const res = await fetch('https://your-domain.com/v1/models?category=text', {
+  headers: { 'Authorization': 'Bearer kira_sk_xxxxx' }
+});
+const data = await res.json();
+console.log(data);</pre>
+                    </div>
+                    <div class="code-tab-panel" data-lang="python">
+                        <button class="copy-code-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
+                        <pre>import requests
+
+res = requests.get(
+    'https://your-domain.com/v1/models',
+    params={'category': 'text'},
+    headers={'Authorization': 'Bearer kira_sk_xxxxx'}
+)
+print(res.json())</pre>
+                    </div>
+                    <div class="code-tab-panel" data-lang="php">
+                        <button class="copy-code-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
+                        <pre>$ch = curl_init('https://your-domain.com/v1/models?category=text');
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER => [
+        'Authorization: Bearer kira_sk_xxxxx'
+    ]
+]);
+$response = curl_exec($ch);
+curl_close($ch);
+echo $response;</pre>
+                    </div>
+                </div>
+
+                <div class="response-example">
+                    <h4>Response mẫu</h4>
+                    <pre>{
+  "object": "list",
+  "data": [
+    {
+      "id": "gemini-3.6-flash",
+      "object": "model",
+      "created": 1753506000,
+      "owned_by": "kira-agent-platform",
+      "category": "text",
+      "display_name": "Gemini 3.6 Flash",
+      "is_default": true
+    }
+  ]
+}</pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== CHAT ==================== -->
+    <section class="docs-section" id="chat">
+        <h2><i class="fas fa-comments"></i> Chat Completions</h2>
+
+        <div class="endpoint-card">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="endpoint-method method-post">POST</span>
+                <span class="endpoint-path">/v1/chat/completions</span>
+                <span class="endpoint-desc">Tạo câu trả lời từ AI (hỗ trợ stream)</span>
+                <i class="fas fa-chevron-down endpoint-toggle"></i>
+            </div>
+            <div class="endpoint-body">
+                <p>Gửi tin nhắn và nhận phản hồi từ mô hình AI. Tương thích hoàn toàn với format OpenAI Chat Completions API.</p>
+
+                <h3>Tham số (Body JSON)</h3>
+                <table class="params-table">
+                    <thead><tr><th>Tham số</th><th>Kiểu</th><th>Mô tả</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><code>model</code></td>
+                            <td>string</td>
+                            <td><span class="param-optional">Tuỳ chọn</span> — Model ID (mặc định: model mặc định trong hệ thống)</td>
+                        </tr>
+                        <tr>
+                            <td><code>messages</code></td>
+                            <td>array</td>
+                            <td><span class="param-required">Bắt buộc</span> — Mảng tin nhắn. Mỗi phần tử gồm <code>role</code> (<code>system</code> / <code>user</code> / <code>assistant</code>) và <code>content</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>stream</code></td>
+                            <td>boolean</td>
+                            <td><span class="param-optional">Tuỳ chọn</span> — <code>true</code> để nhận kết quả dạng Server-Sent Events (SSE)</td>
+                        </tr>
+                        <tr>
+                            <td><code>temperature</code></td>
+                            <td>number</td>
+                            <td><span class="param-optional">Tuỳ chọn</span> — Độ sáng tạo (0.0 - 2.0)</td>
+                        </tr>
+                        <tr>
+                            <td><code>max_tokens</code></td>
+                            <td>integer</td>
+                            <td><span class="param-optional">Tuỳ chọn</span> — Giới hạn số token đầu ra</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="code-tabs" data-group="chat">
+                    <div class="code-tab-buttons">
+                        <button class="code-tab-btn active" onclick="switchTab(this, 'curl')">cURL</button>
+                        <button class="code-tab-btn" onclick="switchTab(this, 'javascript')">JavaScript</button>
+                        <button class="code-tab-btn" onclick="switchTab(this, 'python')">Python</button>
+                        <button class="code-tab-btn" onclick="switchTab(this, 'php')">PHP</button>
+                    </div>
+                    <div class="code-tab-panel active" data-lang="curl">
+                        <button class="copy-code-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
+                        <pre>curl -X POST "https://your-domain.com/v1/chat/completions" \
+  -H "Authorization: Bearer kira_sk_xxxxx" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemini-3.6-flash",
+    "messages": [
+      {"role": "system", "content": "Bạn là trợ lý AI hữu ích."},
+      {"role": "user", "content": "Xin chào!"}
+    ]
+  }'</pre>
+                    </div>
+                    <div class="code-tab-panel" data-lang="javascript">
+                        <button class="copy-code-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
+                        <pre>const res = await fetch('https://your-domain.com/v1/chat/completions', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer kira_sk_xxxxx',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    model: 'gemini-3.6-flash',
+    messages: [
+      { role: 'system', content: 'Bạn là trợ lý AI hữu ích.' },
+      { role: 'user', content: 'Xin chào!' }
+    ]
+  })
+});
+const data = await res.json();
+console.log(data.choices[0].message.content);</pre>
+                    </div>
+                    <div class="code-tab-panel" data-lang="python">
+                        <button class="copy-code-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
+                        <pre>import requests
+
+res = requests.post(
+    'https://your-domain.com/v1/chat/completions',
+    headers={
+        'Authorization': 'Bearer kira_sk_xxxxx',
+        'Content-Type': 'application/json'
+    },
+    json={
+        'model': 'gemini-3.6-flash',
+        'messages': [
+            {'role': 'system', 'content': 'Bạn là trợ lý AI hữu ích.'},
+            {'role': 'user', 'content': 'Xin chào!'}
+        ]
+    }
+)
+print(res.json()['choices'][0]['message']['content'])</pre>
+                    </div>
+                    <div class="code-tab-panel" data-lang="php">
+                        <button class="copy-code-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
+                        <pre>$ch = curl_init('https://your-domain.com/v1/chat/completions');
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => [
+        'Authorization: Bearer kira_sk_xxxxx',
+        'Content-Type: application/json'
+    ],
+    CURLOPT_POSTFIELDS => json_encode([
+        'model' => 'gemini-3.6-flash',
+        'messages' => [
+            ['role' => 'system', 'content' => 'Bạn là trợ lý AI hữu ích.'],
+            ['role' => 'user', 'content' => 'Xin chào!']
+        ]
+    ])
+]);
+$response = json_decode(curl_exec($ch), true);
+curl_close($ch);
+echo $response['choices'][0]['message']['content'];</pre>
+                    </div>
+                </div>
+
+                <div class="response-example">
+                    <h4>Response mẫu</h4>
+                    <pre>{
+  "id": "chatcmpl-abc123def456",
+  "object": "chat.completion",
+  "created": 1753506000,
+  "model": "gemini-3.6-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "Xin chào! Mình có thể giúp gì cho bạn?"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 25,
+    "completion_tokens": 15,
+    "total_tokens": 40
+  }
+}</pre>
+                </div>
+
+                <div class="info-box">
+                    <i class="fas fa-circle-info"></i>
+                    <span>Khi <code>stream: true</code>, server trả về Server-Sent Events (SSE). Mỗi chunk chứa <code>data: {"choices": [{"delta": {"content": "..."}}]}</code>. Kết thúc bằng <code>data: [DONE]</code>.</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== IMAGES ==================== -->
+    <section class="docs-section" id="images">
+        <h2><i class="fas fa-image"></i> Tạo hình ảnh (Image Generation)</h2>
+
+        <div class="endpoint-card">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="endpoint-method method-post">POST</span>
+                <span class="endpoint-path">/v1/images/generations</span>
+                <span class="endpoint-desc">Tạo ảnh từ mô tả văn bản</span>
+                <i class="fas fa-chevron-down endpoint-toggle"></i>
+            </div>
+            <div class="endpoint-body">
+                <p>Tạo hình ảnh nghệ thuật từ prompt văn bản sử dụng các mô hình AI tạo ảnh.</p>
+
+                <h3>Tham số (Body JSON)</h3>
+                <table class="params-table">
+                    <thead><tr><th>Tham số</th><th>Kiểu</th><th>Mô tả</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><code>prompt</code></td>
+                            <td>string</td>
+                            <td><span class="param-required">Bắt buộc</span> — Mô tả ảnh cần tạo</td>
+                        </tr>
+                        <tr>
+                            <td><code>size</code></td>
+                            <td>string</td>
+                            <td><span class="param-optional">Tuỳ chọn</span> — Tỷ lệ ảnh: <code>1:1</code> (mặc định), <code>16:9</code>, <code>9:16</code>, <code>4:3</code>, hoặc <code>1792x1024</code>, <code>1024x1792</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="code-tabs" data-group="images">
+                    <div class="code-tab-buttons">
+                        <button class="code-tab-btn active" onclick="switchTab(this, 'curl')">cURL</button>
+                        <button class="code-tab-btn" onclick="switchTab(this, 'javascript')">JavaScript</button>
+                        <button class="code-tab-btn" onclick="switchTab(this, 'python')">Python</button>
+                        <button class="code-tab-btn" onclick="switchTab(this, 'php')">PHP</button>
+                    </div>
+                    <div class="code-tab-panel active" data-lang="curl">
+                        <button class="copy-code-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
+                        <pre>curl -X POST "https://your-domain.com/v1/images/generations" \
+  -H "Authorization: Bearer kira_sk_xxxxx" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "Một con mèo đang bay trên bầu trời đầy sao",
+    "size": "16:9"
+  }'</pre>
+                    </div>
+                    <div class="code-tab-panel" data-lang="javascript">
+                        <button class="copy-code-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
+                        <pre>const res = await fetch('https://your-domain.com/v1/images/generations', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer kira_sk_xxxxx',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    prompt: 'Một con mèo đang bay trên bầu trời đầy sao',
+    size: '16:9'
+  })
+});
+const data = await res.json();
+console.log(data.data[0].url);</pre>
+                    </div>
+                    <div class="code-tab-panel" data-lang="python">
+                        <button class="copy-code-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
+                        <pre>import requests
+
+res = requests.post(
+    'https://your-domain.com/v1/images/generations',
+    headers={
+        'Authorization': 'Bearer kira_sk_xxxxx',
+        'Content-Type': 'application/json'
+    },
+    json={
+        'prompt': 'Một con mèo đang bay trên bầu trời đầy sao',
+        'size': '16:9'
+    }
+)
+print(res.json()['data'][0]['url'])</pre>
+                    </div>
+                    <div class="code-tab-panel" data-lang="php">
+                        <button class="copy-code-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
+                        <pre>$ch = curl_init('https://your-domain.com/v1/images/generations');
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => [
+        'Authorization: Bearer kira_sk_xxxxx',
+        'Content-Type: application/json'
+    ],
+    CURLOPT_POSTFIELDS => json_encode([
+        'prompt' => 'Một con mèo đang bay trên bầu trời đầy sao',
+        'size' => '16:9'
+    ])
+]);
+$response = json_decode(curl_exec($ch), true);
+curl_close($ch);
+echo $response['data'][0]['url'];</pre>
+                    </div>
+                </div>
+
+                <div class="response-example">
+                    <h4>Response mẫu</h4>
+                    <pre>{
+  "created": 1753506000,
+  "data": [
+    {
+      "url": "https://your-domain.com/uploads/images/img_abc123.png",
+      "revised_prompt": "Một con mèo đang bay trên bầu trời đầy sao"
+    }
+  ]
+}</pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== TTS ==================== -->
+    <section class="docs-section" id="tts">
+        <h2><i class="fas fa-microphone"></i> Chuyển văn bản thành giọng nói (TTS)</h2>
+
+        <div class="endpoint-card">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="endpoint-method method-post">POST</span>
+                <span class="endpoint-path">/v1/audio/speech</span>
+                <span class="endpoint-desc">Chuyển văn bản thành file âm thanh WAV</span>
+                <i class="fas fa-chevron-down endpoint-toggle"></i>
+            </div>
+            <div class="endpoint-body">
+                <p>Tạo file âm thanh WAV 24kHz từ văn bản sử dụng các giọng đọc AI chất lượng cao.</p>
+
+                <h3>Tham số (Body JSON)</h3>
+                <table class="params-table">
+                    <thead><tr><th>Tham số</th><th>Kiểu</th><th>Mô tả</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><code>input</code></td>
+                            <td>string</td>
+                            <td><span class="param-required">Bắt buộc</span> — Nội dung văn bản cần chuyển thành giọng nói</td>
+                        </tr>
+                        <tr>
+                            <td><code>voice</code></td>
+                            <td>string</td>
+                            <td><span class="param-optional">Tuỳ chọn</span> — Tên giọng đọc (mặc định: <code>Kore</code>)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Danh sách giọng đọc</h3>
+                <table class="params-table">
+                    <thead><tr><th>Giọng</th><th>Giới tính</th><th>Ghi chú</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>Alloy</code></td><td>Nữ</td><td>Giọng miền Bắc</td></tr>
+                        <tr><td><code>Fable</code></td><td>Nữ</td><td>Giọng miền Nam</td></tr>
+                        <tr><td><code>Nova</code></td><td>Nữ</td><td>Giọng miền Bắc</td></tr>
+                        <tr><td><code>Shimmer</code></td><td>Nữ</td><td>Giọng miền Bắc</td></tr>
+                        <tr><td><code>Kore</code></td><td>Nữ</td><td>Mặc định</td></tr>
+                        <tr><td><code>Aoede</code></td><td>Nữ</td><td>—</td></tr>
+                        <tr><td><code>Echo</code></td><td>Nam</td><td>Giọng miền Bắc</td></tr>
+                        <tr><td><code>Onyx</code></td><td>Nam</td><td>Giọng miền Nam</td></tr>
+                        <tr><td><code>Puck</code></td><td>Nam</td><td>—</td></tr>
+                        <tr><td><code>Charon</code></td><td>Nam</td><td>—</td></tr>
+                        <tr><td><code>Fenrir</code></td><td>Nam</td><td>—</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="code-tabs" data-group="tts">
+                    <div class="code-tab-buttons">
+                        <button class="code-tab-btn active" onclick="switchTab(this, 'curl')">cURL</button>
+                        <button class="code-tab-btn" onclick="switchTab(this, 'javascript')">JavaScript</button>
+                        <button class="code-tab-btn" onclick="switchTab(this, 'python')">Python</button>
+                        <button class="code-tab-btn" onclick="switchTab(this, 'php')">PHP</button>
+                    </div>
+                    <div class="code-tab-panel active" data-lang="curl">
+                        <button class="copy-code-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
+                        <pre>curl -X POST "https://your-domain.com/v1/audio/speech" \
+  -H "Authorization: Bearer kira_sk_xxxxx" \
+  -H "Content-Type: application/json" \
+  -d '{"input": "Xin chào! Đây là giọng đọc AI.", "voice": "Kore"}' \
+  --output output.wav</pre>
+                    </div>
+                    <div class="code-tab-panel" data-lang="javascript">
+                        <button class="copy-code-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
+                        <pre>const res = await fetch('https://your-domain.com/v1/audio/speech', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer kira_sk_xxxxx',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    input: 'Xin chào! Đây là giọng đọc AI.',
+    voice: 'Kore'
+  })
+});
+
+// Response trả về trực tiếp file WAV
+const blob = await res.blob();
+const url = URL.createObjectURL(blob);
+const audio = new Audio(url);
+audio.play();</pre>
+                    </div>
+                    <div class="code-tab-panel" data-lang="python">
+                        <button class="copy-code-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
+                        <pre>import requests
+
+res = requests.post(
+    'https://your-domain.com/v1/audio/speech',
+    headers={
+        'Authorization': 'Bearer kira_sk_xxxxx',
+        'Content-Type': 'application/json'
+    },
+    json={
+        'input': 'Xin chào! Đây là giọng đọc AI.',
+        'voice': 'Kore'
+    }
+)
+
+with open('output.wav', 'wb') as f:
+    f.write(res.content)
+print('Đã lưu file output.wav')</pre>
+                    </div>
+                    <div class="code-tab-panel" data-lang="php">
+                        <button class="copy-code-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
+                        <pre>$ch = curl_init('https://your-domain.com/v1/audio/speech');
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => [
+        'Authorization: Bearer kira_sk_xxxxx',
+        'Content-Type: application/json'
+    ],
+    CURLOPT_POSTFIELDS => json_encode([
+        'input' => 'Xin chào! Đây là giọng đọc AI.',
+        'voice' => 'Kore'
+    ])
+]);
+$audio = curl_exec($ch);
+curl_close($ch);
+file_put_contents('output.wav', $audio);
+echo 'Đã lưu file output.wav';</pre>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <i class="fas fa-circle-info"></i>
+                    <span>API trả về trực tiếp file WAV (binary) với header <code>Content-Type: audio/wav</code>. Bạn có thể lưu trực tiếp hoặc phát qua trình duyệt.</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== USER ==================== -->
+    <section class="docs-section" id="user">
+        <h2><i class="fas fa-user"></i> User</h2>
+
+        <!-- GET /v1/user/profile -->
+        <div class="endpoint-card">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="endpoint-method method-get">GET</span>
+                <span class="endpoint-path">/v1/user/profile</span>
+                <span class="endpoint-desc">Lấy thông tin tài khoản sở hữu API Key</span>
+                <i class="fas fa-chevron-down endpoint-toggle"></i>
+            </div>
+            <div class="endpoint-body">
+                <p>Trả về thông tin tài khoản người dùng đang sở hữu API Key được sử dụng trong request.</p>
+
+                <div class="code-tabs" data-group="user-profile">
+                    <div class="code-tab-buttons">
+                        <button class="code-tab-btn active" onclick="switchTab(this, 'curl')">cURL</button>
+                        <button class="code-tab-btn" onclick="switchTab(this, 'javascript')">JavaScript</button>
+                        <button class="code-tab-btn" onclick="switchTab(this, 'python')">Python</button>
+                    </div>
+                    <div class="code-tab-panel active" data-lang="curl">
+                        <button class="copy-code-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
+                        <pre>curl -X GET "https://your-domain.com/v1/user/profile" \
+  -H "Authorization: Bearer kira_sk_xxxxx"</pre>
+                    </div>
+                    <div class="code-tab-panel" data-lang="javascript">
+                        <button class="copy-code-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
+                        <pre>const res = await fetch('https://your-domain.com/v1/user/profile', {
+  headers: { 'Authorization': 'Bearer kira_sk_xxxxx' }
+});
+const data = await res.json();
+console.log(data);</pre>
+                    </div>
+                    <div class="code-tab-panel" data-lang="python">
+                        <button class="copy-code-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
+                        <pre>import requests
+
+res = requests.get(
+    'https://your-domain.com/v1/user/profile',
+    headers={'Authorization': 'Bearer kira_sk_xxxxx'}
+)
+print(res.json())</pre>
+                    </div>
+                </div>
+
+                <div class="response-example">
+                    <h4>Response mẫu</h4>
+                    <pre>{
+  "object": "user",
+  "data": {
+    "id": "6789abc...",
+    "username": "johndoe",
+    "email": "john@example.com",
+    "display_name": "John Doe",
+    "role": "user",
+    "created_at": "2026-07-20T10:00:00.000Z"
+  }
+}</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- GET /v1/user/api-keys -->
+        <div class="endpoint-card">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="endpoint-method method-get">GET</span>
+                <span class="endpoint-path">/v1/user/api-keys</span>
+                <span class="endpoint-desc">Danh sách API Key của bạn (đã che)</span>
+                <i class="fas fa-chevron-down endpoint-toggle"></i>
+            </div>
+            <div class="endpoint-body">
+                <p>Trả về danh sách tất cả API Key của tài khoản. Key được hiển thị dạng che (masked) để bảo mật.</p>
+
+                <div class="code-tabs" data-group="user-keys">
+                    <div class="code-tab-buttons">
+                        <button class="code-tab-btn active" onclick="switchTab(this, 'curl')">cURL</button>
+                        <button class="code-tab-btn" onclick="switchTab(this, 'javascript')">JavaScript</button>
+                    </div>
+                    <div class="code-tab-panel active" data-lang="curl">
+                        <button class="copy-code-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
+                        <pre>curl -X GET "https://your-domain.com/v1/user/api-keys" \
+  -H "Authorization: Bearer kira_sk_xxxxx"</pre>
+                    </div>
+                    <div class="code-tab-panel" data-lang="javascript">
+                        <button class="copy-code-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
+                        <pre>const res = await fetch('https://your-domain.com/v1/user/api-keys', {
+  headers: { 'Authorization': 'Bearer kira_sk_xxxxx' }
+});
+const data = await res.json();
+console.log(data);</pre>
+                    </div>
+                </div>
+
+                <div class="response-example">
+                    <h4>Response mẫu</h4>
+                    <pre>{
+  "object": "list",
+  "data": [
+    {
+      "id": "abc123...",
+      "name": "Production Key",
+      "key": "kira_sk_••••••••a1b2",
+      "is_active": true,
+      "usage_count": 142,
+      "last_used_at": "2026-07-26T05:00:00.000Z",
+      "created_at": "2026-07-20T10:00:00.000Z"
+    }
+  ]
+}</pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Error Codes -->
+    <section class="docs-section" id="errors">
+        <h2><i class="fas fa-circle-exclamation"></i> Mã lỗi (Error Codes)</h2>
+        <table class="params-table">
+            <thead><tr><th>HTTP Code</th><th>Error Type</th><th>Mô tả</th></tr></thead>
+            <tbody>
+                <tr><td><code>400</code></td><td><code>invalid_request_error</code></td><td>Thiếu tham số bắt buộc hoặc dữ liệu không hợp lệ</td></tr>
+                <tr><td><code>401</code></td><td><code>invalid_api_key</code></td><td>API Key không hợp lệ, không tồn tại hoặc sai format</td></tr>
+                <tr><td><code>401</code></td><td><code>expired_api_key</code></td><td>API Key đã hết hạn hoặc bị vô hiệu hoá</td></tr>
+                <tr><td><code>401</code></td><td><code>account_disabled</code></td><td>Tài khoản đã bị khoá bởi quản trị viên</td></tr>
+                <tr><td><code>429</code></td><td><code>rate_limit_exceeded</code></td><td>Đã vượt quá giới hạn số lượng request</td></tr>
+                <tr><td><code>500</code></td><td><code>server_error</code></td><td>Lỗi server nội bộ</td></tr>
+            </tbody>
+        </table>
+
+        <div class="response-example">
+            <h4>Ví dụ response lỗi</h4>
+            <pre>{
+  "error": {
+    "message": "API key không hợp lệ. Vui lòng sử dụng format: Authorization: Bearer kira_sk_xxxxx",
+    "type": "invalid_api_key",
+    "code": "invalid_api_key"
+  }
+}</pre>
+        </div>
+    </section>
+</div>
+
+<script>
+// Toggle endpoint card
+function toggleEndpoint(header) {
+    const card = header.closest('.endpoint-card');
+    card.classList.toggle('open');
+}
+
+// Switch code tab
+function switchTab(btn, lang) {
+    const tabs = btn.closest('.code-tabs');
+    tabs.querySelectorAll('.code-tab-btn').forEach(b => b.classList.remove('active'));
+    tabs.querySelectorAll('.code-tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    tabs.querySelector(`.code-tab-panel[data-lang="${lang}"]`).classList.add('active');
+}
+
+// Copy code
+function copyCode(btn) {
+    const pre = btn.closest('.code-tab-panel').querySelector('pre');
+    navigator.clipboard.writeText(pre.textContent).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        btn.style.color = '#22c55e';
+        setTimeout(() => { btn.innerHTML = orig; btn.style.color = ''; }, 1500);
+    });
+}
+
+// Copy base URL
+function copyBaseUrl() {
+    const url = window.location.origin + '/v1';
+    navigator.clipboard.writeText(url).then(() => {
+        if (typeof showToast === 'function') showToast('Đã sao chép Base URL!', 'success');
+    });
+}
+
+// Update base URL display
+document.addEventListener('DOMContentLoaded', () => {
+    const baseUrlText = document.getElementById('baseUrlText');
+    if (baseUrlText) {
+        baseUrlText.textContent = window.location.origin + '/v1';
+    }
+
+    // Replace all "your-domain.com" in code examples with actual host
+    document.querySelectorAll('.code-tab-panel pre, .response-example pre').forEach(pre => {
+        pre.textContent = pre.textContent.replace(/https:\/\/your-domain\.com/g, window.location.origin);
+    });
+
+    // Docs nav scroll spy
+    const navLinks = document.querySelectorAll('.docs-nav-list a');
+    const sections = document.querySelectorAll('.docs-section');
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                navLinks.forEach(link => link.classList.remove('active'));
+                const target = document.querySelector(`.docs-nav-list a[href="#${entry.target.id}"]`);
+                if (target) target.classList.add('active');
+            }
+        });
+    }, { root: document.querySelector('.docs-container'), rootMargin: '-80px 0px -60% 0px' });
+
+    sections.forEach(s => observer.observe(s));
+});
+</script>
