@@ -279,17 +279,19 @@ router.post('/audio/speech', async (req, res) => {
         });
 
         // Trả audio file
-        if (result.audioPath) {
+        const relativeUrl = result.audioUrl || result.audioPath;
+        if (relativeUrl) {
             const fs = require('fs');
-            const audioPath = require('path').join(__dirname, '..', '..', '..', 'public', result.audioPath);
-            if (fs.existsSync(audioPath)) {
-                res.setHeader('Content-Type', 'audio/wav');
-                return fs.createReadStream(audioPath).pipe(res);
+            const path = require('path');
+            const fullPath = path.join(__dirname, '..', '..', '..', 'public', relativeUrl.replace(/^\//, ''));
+            if (fs.existsSync(fullPath)) {
+                res.setHeader('Content-Type', result.mimeType || 'audio/wav');
+                return fs.createReadStream(fullPath).pipe(res);
             }
         }
 
         res.json({
-            url: result.audioPath ? `${req.protocol}://${req.get('host')}${result.audioPath}` : null
+            url: relativeUrl ? `${req.protocol}://${req.get('host')}${relativeUrl}` : null
         });
     } catch (error) {
         res.status(500).json({
