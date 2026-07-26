@@ -81,6 +81,27 @@ router.get('/user/api-keys', async (req, res) => {
         res.status(500).json({ error: { message: error.message, type: 'server_error' } });
     }
 });
+function extractMessageText(content) {
+    if (!content) return '';
+    if (typeof content === 'string') return content;
+    if (Array.isArray(content)) {
+        return content
+            .map(part => {
+                if (typeof part === 'string') return part;
+                if (part && typeof part === 'object') {
+                    if (part.type === 'text' && typeof part.text === 'string') return part.text;
+                    if (typeof part.text === 'string') return part.text;
+                }
+                return '';
+            })
+            .filter(Boolean)
+            .join('\n');
+    }
+    if (typeof content === 'object' && typeof content.text === 'string') {
+        return content.text;
+    }
+    return String(content);
+}
 
 // ==========================================
 // POST /v1/chat/completions — Chat
@@ -98,28 +119,46 @@ router.post('/chat/completions', async (req, res) => {
         // Convert OpenAI messages → Gemini format
         let systemPrompt = '';
         const history = [];
-        let lastUserPrompt = '';
 
         for (const msg of messages) {
-            if (msg.role === 'system') {
-                systemPrompt = msg.content;
-            } else if (msg.role === 'user') {
-                lastUserPrompt = msg.content;
-                history.push({ role: 'user', parts: [{ text: msg.content }] });
-            } else if (msg.role === 'assistant') {
-                history.push({ role: 'model', parts: [{ text: msg.content }] });
+            const textContent = extractMessageText(msg.content);
+            const role = msg.role;
+
+            if (role === 'system' || role === 'developer') {
+                systemPrompt = systemPrompt ? `${systemPrompt}\n${textContent}` : textContent;
+            } else if (role === 'user') {
+                history.push({ role: 'user', parts: [{ text: textContent }] });
+            } else if (role === 'assistant' || role === 'model') {
+                history.push({ role: 'model', parts: [{ text: textContent }] });
             }
         }
 
-        // Lấy prompt cuối từ history
-        const prompt = lastUserPrompt;
-        const geminiHistory = history.slice(0, -1); // Bỏ message cuối (sẽ là prompt)
+        if (history.length === 0) {
+            return res.status(400).json({
+                error: { message: 'Cần có ít nhất 1 message từ user', type: 'invalid_request_error' }
+            });
+        }
+
+        // Tìm prompt cuối cùng từ user
+        let prompt = '';
+        let lastUserIndex = -1;
+        for (let i = history.length - 1; i >= 0; i--) {
+            if (history[i].role === 'user') {
+                prompt = history[i].parts[0]?.text || '';
+                lastUserIndex = i;
+                break;
+            }
+        }
+
+        // Gemini history là tất cả messages trước prompt cuối
+        const geminiHistory = lastUserIndex >= 0 ? history.slice(0, lastUserIndex) : history.slice(0, -1);
 
         if (stream) {
             // === Streaming (SSE) ===
-            res.setHeader('Content-Type', 'text/event-stream');
-            res.setHeader('Cache-Control', 'no-cache');
+            res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+            res.setHeader('Cache-Control', 'no-cache, no-transform');
             res.setHeader('Connection', 'keep-alive');
+            res.setHeader('X-Accel-Buffering', 'no');
 
             const chatId = 'chatcmpl-' + uuidv4().replace(/-/g, '').substring(0, 29);
             const created = Math.floor(Date.now() / 1000);
@@ -133,8 +172,24 @@ router.post('/chat/completions', async (req, res) => {
                     user: req.user
                 });
 
-                const stream = apiResponse.stream;
-                const reader = stream.getReader ? stream.getReader() : null;
+                const modelUsed = apiResponse.modelUsed || model || 'gemini-3.6-flash';
+
+                // Gửi chunk khởi tạo ban đầu với role assistant (Chuẩn OpenAI SSE cho VS Code / Continue)
+                const initialChunk = {
+                    id: chatId,
+                    object: 'chat.completion.chunk',
+                    created,
+                    model: modelUsed,
+                    choices: [{
+                        index: 0,
+                        delta: { role: 'assistant', content: '' },
+                        finish_reason: null
+                    }]
+                };
+                res.write(`data: ${JSON.stringify(initialChunk)}\n\n`);
+
+                const streamObj = apiResponse.stream;
+                const reader = streamObj && streamObj.getReader ? streamObj.getReader() : null;
                 let buffer = '';
 
                 if (reader) {
@@ -149,7 +204,7 @@ router.post('/chat/completions', async (req, res) => {
                         for (const line of lines) {
                             if (!line.startsWith('data: ')) continue;
                             const jsonStr = line.slice(6).trim();
-                            if (!jsonStr) continue;
+                            if (!jsonStr || jsonStr === '[DONE]') continue;
 
                             try {
                                 const parsed = JSON.parse(jsonStr);
@@ -159,7 +214,7 @@ router.post('/chat/completions', async (req, res) => {
                                         id: chatId,
                                         object: 'chat.completion.chunk',
                                         created,
-                                        model: apiResponse.modelUsed || model || 'gemini-3.6-flash',
+                                        model: modelUsed,
                                         choices: [{
                                             index: 0,
                                             delta: { content: text },
@@ -171,8 +226,8 @@ router.post('/chat/completions', async (req, res) => {
                             } catch (e) { /* skip invalid JSON */ }
                         }
                     }
-                } else if (stream && typeof stream.on === 'function') {
-                    for await (const chunk of stream) {
+                } else if (streamObj && typeof streamObj.on === 'function') {
+                    for await (const chunk of streamObj) {
                         buffer += chunk.toString('utf8');
                         const lines = buffer.split('\n');
                         buffer = lines.pop();
@@ -180,7 +235,7 @@ router.post('/chat/completions', async (req, res) => {
                         for (const line of lines) {
                             if (!line.startsWith('data: ')) continue;
                             const jsonStr = line.slice(6).trim();
-                            if (!jsonStr) continue;
+                            if (!jsonStr || jsonStr === '[DONE]') continue;
 
                             try {
                                 const parsed = JSON.parse(jsonStr);
@@ -190,7 +245,7 @@ router.post('/chat/completions', async (req, res) => {
                                         id: chatId,
                                         object: 'chat.completion.chunk',
                                         created,
-                                        model: apiResponse.modelUsed || model || 'gemini-3.6-flash',
+                                        model: modelUsed,
                                         choices: [{
                                             index: 0,
                                             delta: { content: text },
@@ -209,13 +264,14 @@ router.post('/chat/completions', async (req, res) => {
                     id: chatId,
                     object: 'chat.completion.chunk',
                     created,
-                    model: model || 'gemini-2.5-flash',
+                    model: modelUsed,
                     choices: [{ index: 0, delta: {}, finish_reason: 'stop' }]
                 };
                 res.write(`data: ${JSON.stringify(finalChunk)}\n\n`);
                 res.write('data: [DONE]\n\n');
                 res.end();
             } catch (error) {
+                console.error('Proxy stream error:', error);
                 res.write(`data: ${JSON.stringify({ error: { message: error.message } })}\n\n`);
                 res.end();
             }
@@ -233,7 +289,7 @@ router.post('/chat/completions', async (req, res) => {
                 id: 'chatcmpl-' + uuidv4().replace(/-/g, '').substring(0, 29),
                 object: 'chat.completion',
                 created: Math.floor(Date.now() / 1000),
-                model: result.modelUsed || model || 'gemini-2.5-flash',
+                model: result.modelUsed || model || 'gemini-3.6-flash',
                 choices: [{
                     index: 0,
                     message: { role: 'assistant', content: result.text },
@@ -247,6 +303,7 @@ router.post('/chat/completions', async (req, res) => {
             });
         }
     } catch (error) {
+        console.error('Proxy non-stream error:', error);
         res.status(500).json({
             error: { message: error.message, type: 'server_error' }
         });
