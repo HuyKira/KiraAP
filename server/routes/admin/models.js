@@ -14,6 +14,16 @@ router.get('/', async (req, res) => {
     res.render('admin/models', { pageTitle: 'Mô hình AI', activePage: 'models', adminUser: req.user, models: grouped });
 });
 
+// Sanitize parameters object to prevent MongoDB operator injection
+function sanitizeParams(obj) {
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return {};
+    const safe = {};
+    for (const key of Object.keys(obj)) {
+        if (!key.startsWith('$')) safe[key] = obj[key];
+    }
+    return safe;
+}
+
 // POST /admin/models/api
 router.post('/api', async (req, res) => {
     try {
@@ -21,7 +31,7 @@ router.post('/api', async (req, res) => {
         if (!category || !modelId || !displayName) {
             return res.status(400).json({ success: false, message: 'Thiếu thông tin bắt buộc' });
         }
-        const model = await ModelConfig.create({ category, modelId, displayName, systemPrompt, isDefault, parameters: parameters || {} });
+        const model = await ModelConfig.create({ category, modelId, displayName, systemPrompt, isDefault, parameters: sanitizeParams(parameters) });
         res.json({ success: true, data: model });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -31,11 +41,11 @@ router.post('/api', async (req, res) => {
 // PUT /admin/models/api/:id
 router.put('/api/:id', async (req, res) => {
     try {
-        const updates = req.body;
+        const { category, modelId, displayName, systemPrompt, isDefault, parameters } = req.body;
         const model = await ModelConfig.findById(req.params.id);
         if (!model) return res.status(404).json({ success: false, message: 'Không tìm thấy' });
 
-        Object.assign(model, updates);
+        Object.assign(model, { category, modelId, displayName, systemPrompt, isDefault, parameters: sanitizeParams(parameters) });
         await model.save();
         res.json({ success: true, data: model });
     } catch (error) {
