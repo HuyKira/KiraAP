@@ -139,7 +139,7 @@ Mở file `.env` và chỉnh sửa các tham số tương ứng:
 PORT=3001
 NODE_ENV=development
 
-MONGODB_URI=mongodb://localhost:27017/kiraap
+MONGODB_URI=mongodb://localhost:27017/kiraapDB
 JWT_SECRET=thay_doi_chuoi_bao_mat_jwt_tai_day
 JWT_EXPIRES_IN=7d
 
